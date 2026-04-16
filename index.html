@@ -63,6 +63,30 @@ header h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,7vw,3.4rem
 .start-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
 .start-btn-sub { text-align:center; font-size:.72rem; color:var(--muted); margin-top:8px; }
 
+/* GITHUB SETTINGS */
+.gh-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:9px 14px; margin-bottom:10px; cursor:pointer; transition:all .15s; }
+.gh-bar:hover { border-color:var(--green); }
+.gh-bar-left { display:flex; align-items:center; gap:8px; }
+.gh-bar-icon { font-size:1rem; }
+.gh-bar-label { font-size:.78rem; font-weight:600; color:var(--text); }
+.gh-bar-status { font-size:.65rem; color:var(--muted); margin-top:1px; }
+.gh-bar-arrow { color:var(--muted); font-size:.8rem; }
+.gh-bar.connected .gh-bar-label { color:var(--green); }
+.gh-bar.connected { border-color:rgba(26,122,60,.3); background:rgba(26,122,60,.04); }
+
+.gh-settings-panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px; display:none; }
+.gh-settings-panel.open { display:block; }
+.gh-field-label { font-size:.7rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px; margin-top:10px; }
+.gh-field-label:first-child { margin-top:0; }
+.gh-input { width:100%; border:1px solid var(--line); background:var(--dark); font-family:'DM Sans',sans-serif; font-size:.84rem; color:var(--text); padding:8px 10px; border-radius:8px; outline:none; transition:border-color .15s; }
+.gh-input:focus { border-color:var(--green); }
+.gh-input-note { font-size:.65rem; color:var(--muted); margin-top:4px; }
+.gh-save-btn { width:100%; background:var(--green); border:none; color:white; padding:10px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.82rem; font-weight:600; cursor:pointer; margin-top:12px; transition:all .15s; }
+.gh-save-btn:hover { opacity:.9; }
+.gh-clear-btn { width:100%; background:transparent; border:1px solid var(--line); color:var(--muted); padding:8px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.75rem; cursor:pointer; margin-top:6px; transition:all .15s; }
+.gh-clear-btn:hover { border-color:var(--red); color:var(--red); }
+.gh-sync-status { font-size:.72rem; text-align:center; margin-top:8px; min-height:18px; color:var(--muted); }
+
 /* TABS */
 .quarter-tabs { display:flex; border-bottom:2px solid var(--line); background:#f0f0f0; position:sticky; top:73px; z-index:90; overflow-x:auto; scrollbar-width:none; }
 .quarter-tabs::-webkit-scrollbar { display:none; }
@@ -231,6 +255,30 @@ header h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,7vw,3.4rem
       <button class="att-btn-sm" onclick="setAllAttendance(true)">✓ All Present</button>
       <button class="att-btn-sm" onclick="setAllAttendance(false)">✗ All Absent</button>
     </div>
+    <!-- GitHub Settings Bar -->
+    <div class="gh-bar" id="gh-bar" onclick="toggleGhSettings()">
+      <div class="gh-bar-left">
+        <div class="gh-bar-icon">🔗</div>
+        <div>
+          <div class="gh-bar-label" id="gh-bar-label">Connect GitHub</div>
+          <div class="gh-bar-status" id="gh-bar-status">Save stats to your repo</div>
+        </div>
+      </div>
+      <div class="gh-bar-arrow">⚙️</div>
+    </div>
+    <div class="gh-settings-panel" id="gh-settings-panel">
+      <div class="gh-field-label">GitHub Username</div>
+      <input class="gh-input" id="gh-username" placeholder="e.g. richcoach" autocomplete="off" autocapitalize="off">
+      <div class="gh-field-label">Repository Name</div>
+      <input class="gh-input" id="gh-repo" placeholder="e.g. rainbow-girls-rotation" autocomplete="off" autocapitalize="off">
+      <div class="gh-field-label">Personal Access Token</div>
+      <input class="gh-input" id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+      <div class="gh-input-note">Token needs <strong>repo</strong> scope. Generate at GitHub → Settings → Developer Settings → Personal Access Tokens. Stored only on this device.</div>
+      <div id="gh-sync-status" class="gh-sync-status"></div>
+      <button class="gh-save-btn" onclick="saveGhSettings()">Save & Test Connection</button>
+      <button class="gh-clear-btn" onclick="clearGhSettings()">Disconnect GitHub</button>
+    </div>
+
     <div class="att-grid" id="att-grid"></div>
     <button class="start-btn" id="start-btn" onclick="startGame()">Generate Rotation ▶</button>
     <div class="start-btn-sub" id="start-btn-sub">10 girls · 3 bench per quarter</div>
@@ -294,105 +342,256 @@ function formatDate(dateStr) {
 }
 
 // ═══════════════════════════════════════════
-//  LOCALSTORAGE
+//  STORAGE — LOCAL + GITHUB
 // ═══════════════════════════════════════════
 const STORAGE_KEY = 'rainbow_girls_v2';
+const GH_KEY = 'rainbow_girls_gh';
+
+// ── Local cache ──
 function loadStats() {
   try { const r = localStorage.getItem(STORAGE_KEY); return r ? JSON.parse(r) : { games:[] }; }
   catch(e) { return { games:[] }; }
 }
-function saveStats(data) {
+function saveStatsLocal(data) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
 }
 
-function saveCurrentGame() {
-  if (!gameData) return;
-  const dateStr = document.getElementById('game-date').value || getTodayStr();
-  const stats = loadStats();
-  const present = PLAYERS.filter(p => attendance[p.id]);
+// ── GitHub config ──
+function loadGhConfig() {
+  try { const r = localStorage.getItem(GH_KEY); return r ? JSON.parse(r) : null; }
+  catch(e) { return null; }
+}
+function saveGhConfig(cfg) {
+  try { localStorage.setItem(GH_KEY, JSON.stringify(cfg)); } catch(e) {}
+}
+function clearGhConfig() {
+  try { localStorage.removeItem(GH_KEY); } catch(e) {}
+}
 
-  // Build stats from gameData quarterState
+// ── GitHub API helpers ──
+async function ghRequest(method, path, body, cfg) {
+  const url = `https://api.github.com/repos/${cfg.username}/${cfg.repo}/contents/${path}`;
+  const opts = {
+    method,
+    headers: {
+      'Authorization': `token ${cfg.token}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github.v3+json'
+    }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || `GitHub error ${res.status}`);
+  return json;
+}
+
+async function ghReadStats(cfg) {
+  try {
+    const data = await ghRequest('GET', 'stats.json', null, cfg);
+    const decoded = JSON.parse(atob(data.content.replace(/[\r\n]/g, '')))
+    return { stats: decoded, sha: data.sha };
+  } catch(e) {
+    if (e.message && e.message.includes('Not Found')) return { stats:{ games:[] }, sha:null };
+    throw e;
+  }
+}
+
+async function ghWriteStats(cfg, stats, sha) {
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(stats, null, 2))));
+  const body = {
+    message: `Update stats — ${new Date().toLocaleDateString()}`,
+    content,
+    ...(sha ? { sha } : {})
+  };
+  return ghRequest('PUT', 'stats.json', body, cfg);
+}
+
+// ── GitHub settings UI ──
+function toggleGhSettings() {
+  const panel = document.getElementById('gh-settings-panel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    const cfg = loadGhConfig();
+    if (cfg) {
+      document.getElementById('gh-username').value = cfg.username || '';
+      document.getElementById('gh-repo').value = cfg.repo || '';
+      document.getElementById('gh-token').value = cfg.token || '';
+    }
+  }
+}
+
+async function saveGhSettings() {
+  const cfg = {
+    username: document.getElementById('gh-username').value.trim(),
+    repo: document.getElementById('gh-repo').value.trim(),
+    token: document.getElementById('gh-token').value.trim()
+  };
+  if (!cfg.username || !cfg.repo || !cfg.token) {
+    setGhStatus('⚠ Please fill in all three fields', 'var(--red)'); return;
+  }
+  setGhStatus('Testing connection...', 'var(--muted)');
+  try {
+    await ghRequest('GET', '', null, cfg); // test: get repo metadata
+    saveGhConfig(cfg);
+    setGhStatus('✓ Connected! Syncing stats from GitHub...', 'var(--green)');
+    updateGhBar();
+    // Pull existing stats from GitHub into local cache
+    const { stats } = await ghReadStats(cfg);
+    saveStatsLocal(stats);
+    setGhStatus(`✓ Connected & synced — ${stats.games.length} game(s) loaded`, 'var(--green)');
+    document.getElementById('gh-settings-panel').classList.remove('open');
+    showToast('✓ GitHub connected!');
+  } catch(e) {
+    setGhStatus(`✗ ${e.message}`, 'var(--red)');
+  }
+}
+
+function setGhStatus(msg, color) {
+  const el = document.getElementById('gh-sync-status');
+  if (el) { el.textContent = msg; el.style.color = color; }
+}
+
+function clearGhSettings() {
+  if (confirm('Disconnect GitHub? Local stats will remain.')) {
+    clearGhConfig();
+    updateGhBar();
+    document.getElementById('gh-settings-panel').classList.remove('open');
+    document.getElementById('gh-username').value = '';
+    document.getElementById('gh-repo').value = '';
+    document.getElementById('gh-token').value = '';
+    showToast('GitHub disconnected');
+  }
+}
+
+function updateGhBar() {
+  const cfg = loadGhConfig();
+  const bar = document.getElementById('gh-bar');
+  const label = document.getElementById('gh-bar-label');
+  const status = document.getElementById('gh-bar-status');
+  if (cfg && cfg.username) {
+    bar.classList.add('connected');
+    label.textContent = `${cfg.username}/${cfg.repo}`;
+    status.textContent = 'Connected — stats save to GitHub';
+  } else {
+    bar.classList.remove('connected');
+    label.textContent = 'Connect GitHub';
+    status.textContent = 'Save stats to your repo';
+  }
+}
+
+// ── Build game record from current gameData ──
+function buildGameRecord(dateStr, present) {
   const playerStats = {};
   present.forEach(p => playerStats[p.id] = { gk:0, fwd:0, def:0, subs:0 });
 
   gameData.quarters.forEach(qd => {
-    const q = qd.q;
-    const qs = quarterState[q] || {};
-
-    // Goalie gets 1 GK for the quarter
+    const qs = quarterState[qd.q] || {};
     if (playerStats[qd.goalie.id] !== undefined) playerStats[qd.goalie.id].gk++;
-
-    // Get h1 positions — use override if present, else original
     const h1 = getQuarterPositions(qd, 'h1', qs.h1 || {});
     const h2 = getQuarterPositions(qd, 'h2', qs.h2 || {});
-
-    // Merge h1 and h2 — each player gets counted once per quarter for their position
-    // If they played both halves in same role, count once. If different, count the 2nd half role.
     const allPids = new Set([...Object.keys(h1), ...Object.keys(h2)]);
+    const qSubInIds  = new Set((qd.subIn   ||[]).map(p=>p.id));
+    const qSubOutIds = new Set((qd.comingOff||[]).map(p=>p.id));
     allPids.forEach(pid => {
-      if (!playerStats[pid]) return;
-      if (pid === qd.goalie.id) return; // already counted as GK
-      const r1 = h1[pid];
-      const r2 = h2[pid];
-      // Determine primary role for this quarter
+      if (!playerStats[pid] || pid === qd.goalie.id) return;
+      const r1 = h1[pid], r2 = h2[pid];
       let role;
       if ((r1==='bench'||!r1) && (r2==='bench'||!r2)) role='bench';
       else if (r2 && r2!=='bench') role=r2;
       else if (r1 && r1!=='bench') role=r1;
       else role='bench';
-
       if (role==='fwd') playerStats[pid].fwd++;
       else if (role==='def') playerStats[pid].def++;
-      // Count bench time: subbed IN (sat 1st half) OR came OFF (sat 2nd half)
-      const qSubInIds  = new Set((qd.subIn   ||[]).map(p=>p.id));
-      const qSubOutIds = new Set((qd.comingOff||[]).map(p=>p.id));
       if (qSubInIds.has(pid) || qSubOutIds.has(pid)) playerStats[pid].subs++;
     });
   });
 
-  const record = {
+  return {
     date: dateStr,
     dateFormatted: formatDate(dateStr),
     timestamp: Date.now(),
     presentIds: present.map(p => p.id),
     players: playerStats
   };
+}
 
-  // Check if a game for this date already exists — replace it
-  const idx = stats.games.findIndex(g => g.date === dateStr);
-  if (idx >= 0) {
-    if (!confirm(`A game for ${formatDate(dateStr)} already exists. Replace it?`)) return;
-    stats.games[idx] = record;
+async function saveCurrentGame() {
+  if (!gameData) return;
+  const dateStr = document.getElementById('game-date').value || getTodayStr();
+  const present = PLAYERS.filter(p => attendance[p.id]);
+  const record = buildGameRecord(dateStr, present);
+  const cfg = loadGhConfig();
+
+  if (cfg && cfg.token) {
+    // GitHub save
+    const btn = document.querySelector('.save-game-btn');
+    if (btn) { btn.textContent = '⏳ Saving to GitHub...'; btn.disabled = true; }
+    try {
+      const { stats, sha } = await ghReadStats(cfg);
+      const idx = stats.games.findIndex(g => g.date === dateStr);
+      if (idx >= 0) {
+        if (!confirm(`A game for ${formatDate(dateStr)} already exists. Replace it?`)) {
+          if (btn) { btn.textContent = `💾 Save Game — ${formatDate(dateStr)}`; btn.disabled = false; }
+          return;
+        }
+        stats.games[idx] = record;
+      } else {
+        stats.games.push(record);
+      }
+      stats.games.sort((a,b) => b.date.localeCompare(a.date));
+      await ghWriteStats(cfg, stats, sha);
+      saveStatsLocal(stats); // keep local in sync
+      if (btn) { btn.textContent = `✓ Saved to GitHub!`; btn.disabled = false; }
+      showToast(`✓ ${formatDate(dateStr)} saved to GitHub!`);
+    } catch(e) {
+      if (btn) { btn.textContent = `💾 Save Game — ${formatDate(dateStr)}`; btn.disabled = false; }
+      showToast(`✗ GitHub error: ${e.message}`);
+    }
   } else {
-    stats.games.push(record);
+    // Local save fallback
+    const stats = loadStats();
+    const idx = stats.games.findIndex(g => g.date === dateStr);
+    if (idx >= 0) {
+      if (!confirm(`A game for ${formatDate(dateStr)} already exists. Replace it?`)) return;
+      stats.games[idx] = record;
+    } else {
+      stats.games.push(record);
+    }
+    stats.games.sort((a,b) => b.date.localeCompare(a.date));
+    saveStatsLocal(stats);
+    showToast(`✓ ${formatDate(dateStr)} saved locally`);
   }
-  // Sort by date descending
-  stats.games.sort((a,b) => b.date.localeCompare(a.date));
-  saveStats(stats);
-  showToast(`✓ ${formatDate(dateStr)} saved!`);
 }
 
 // Get {pid: role} map for a half, applying overrides
 function getQuarterPositions(qd, half, overrides) {
   const result = {};
   const data = half === 'h1' ? qd.half1 : qd.half2;
-
   data.fwds.forEach(p => result[p.id] = 'fwd');
   data.defs.forEach(p => result[p.id] = 'def');
   if (data.bench) data.bench.forEach(p => result[p.id] = 'bench');
   if (data.off)   data.off.forEach(p => result[p.id] = 'bench');
-
-  // Apply overrides
   Object.entries(overrides).forEach(([pid, role]) => { result[pid] = role; });
   return result;
 }
 
-function clearHistory() {
-  if (confirm('Clear all season stats? This cannot be undone.')) {
-    saveStats({ games:[] });
-    renderSummaryTab();
+async function clearHistory() {
+  const cfg = loadGhConfig();
+  if (!confirm('Clear all season stats? This cannot be undone.')) return;
+  const empty = { games: [] };
+  if (cfg && cfg.token) {
+    try {
+      const { sha } = await ghReadStats(cfg);
+      await ghWriteStats(cfg, empty, sha);
+      saveStatsLocal(empty);
+      showToast('Season stats cleared from GitHub');
+    } catch(e) { showToast(`✗ ${e.message}`); }
+  } else {
+    saveStatsLocal(empty);
     showToast('Season stats cleared');
   }
+  renderSummaryTab();
 }
 
 // ═══════════════════════════════════════════
@@ -449,9 +648,25 @@ function generateRotation(presentPlayers) {
   const benchPerQ = Math.max(0, n - 7);
   const FAVORED = ['penny', 'lyla-kay'];
 
+  // Build goalie order: fewest season GK quarters first, then prevGoalie as tiebreak
+  const seasonStats = loadStats();
+  const seasonGkCounts = {};
+  PLAYERS.forEach(p => seasonGkCounts[p.id] = 0);
+  seasonStats.games.forEach(g => {
+    Object.entries(g.players||{}).forEach(([pid, s]) => {
+      if (seasonGkCounts[pid] !== undefined) seasonGkCounts[pid] += (s.gk||0);
+    });
+  });
+
   const goaliePool = [...presentPlayers].sort((a,b) => {
-    if (a.goalieOrder !== b.goalieOrder) return a.goalieOrder - b.goalieOrder;
-    return (a.prevGoalie?1:0) - (b.prevGoalie?1:0);
+    // Primary: fewest total GK quarters across season
+    const gkDiff = seasonGkCounts[a.id] - seasonGkCounts[b.id];
+    if (gkDiff !== 0) return gkDiff;
+    // Secondary: those who haven't played GK at all get priority (prevGoalie = false)
+    const prevDiff = (a.prevGoalie?1:0) - (b.prevGoalie?1:0);
+    if (prevDiff !== 0) return prevDiff;
+    // Tertiary: original order as stable fallback
+    return a.goalieOrder - b.goalieOrder;
   });
   const goalies = [];
   for (let q = 0; q < 4; q++) goalies.push(goaliePool[q % goaliePool.length]);
@@ -932,6 +1147,7 @@ function buildSeasonSummary() {
   });
 
   html += `<button class="clear-history-btn" onclick="clearHistory()">🗑 Clear Season Stats</button>`;
+  html += loadGhConfig() ? `<p style="font-size:.68rem;color:var(--muted);text-align:center;margin-top:8px">Stats synced from GitHub</p>` : `<p style="font-size:.68rem;color:var(--muted);text-align:center;margin-top:8px">Stats stored locally (no GitHub connected)</p>`;
   return html;
 }
 
@@ -990,9 +1206,20 @@ function showToast(msg) {
   t._timer = setTimeout(()=>t.classList.remove('show'), 2400);
 }
 
-// INIT
+// ── INIT ──
 document.getElementById('game-date').value = getTodayStr();
+updateGhBar();
 renderAttendance();
+
+// If GitHub is configured, silently sync stats on load
+(async () => {
+  const cfg = loadGhConfig();
+  if (!cfg || !cfg.token) return;
+  try {
+    const { stats } = await ghReadStats(cfg);
+    saveStatsLocal(stats);
+  } catch(e) { /* silent fail — use local cache */ }
+})();
 </script>
 </body>
 </html>
