@@ -486,24 +486,43 @@ function buildGameRecord(dateStr, present) {
   present.forEach(p => playerStats[p.id] = { gk:0, fwd:0, def:0, subs:0 });
 
   gameData.quarters.forEach(qd => {
-    const qs = quarterState[qd.q] || {};
     if (playerStats[qd.goalie.id] !== undefined) playerStats[qd.goalie.id].gk++;
-    const h1 = getQuarterPositions(qd, 'h1', qs.h1 || {});
-    const h2 = getQuarterPositions(qd, 'h2', qs.h2 || {});
-    const allPids = new Set([...Object.keys(h1), ...Object.keys(h2)]);
-    const qSubInIds  = new Set((qd.subIn   ||[]).map(p=>p.id));
-    const qSubOutIds = new Set((qd.comingOff||[]).map(p=>p.id));
+
+    // Read from live DOM so overrides are included
+    const h1el = document.getElementById(`q${qd.q}-h1`);
+    const h2el = document.getElementById(`q${qd.q}-h2`);
+    const h1map = {}, h2map = {};
+
+    if (h1el) {
+      h1el.querySelectorAll('.player-row[data-pid]').forEach(row => {
+        const r = row.dataset.role || 'bench'; h1map[row.dataset.pid] = (r==='out')?'bench':r;
+      });
+    } else {
+      const qs = quarterState[qd.q] || {};
+      const h1 = getQuarterPositions(qd, 'h1', qs.h1 || {});
+      Object.assign(h1map, h1);
+    }
+    if (h2el) {
+      h2el.querySelectorAll('.player-row[data-pid]').forEach(row => {
+        const r = row.dataset.role || 'bench'; h2map[row.dataset.pid] = (r==='out')?'bench':r;
+      });
+    } else {
+      const qs = quarterState[qd.q] || {};
+      const h2 = getQuarterPositions(qd, 'h2', qs.h2 || {});
+      Object.assign(h2map, h2);
+    }
+
+    const allPids = new Set([...Object.keys(h1map), ...Object.keys(h2map)]);
     allPids.forEach(pid => {
       if (!playerStats[pid] || pid === qd.goalie.id) return;
-      const r1 = h1[pid], r2 = h2[pid];
-      let role;
-      if ((r1==='bench'||!r1) && (r2==='bench'||!r2)) role='bench';
-      else if (r2 && r2!=='bench') role=r2;
-      else if (r1 && r1!=='bench') role=r1;
-      else role='bench';
-      if (role==='fwd') playerStats[pid].fwd++;
-      else if (role==='def') playerStats[pid].def++;
-      if (qSubInIds.has(pid) || qSubOutIds.has(pid)) playerStats[pid].subs++;
+      const r1 = h1map[pid] || 'bench';
+      const r2 = h2map[pid] || 'bench';
+      if (r1 === 'fwd') playerStats[pid].fwd++;
+      if (r1 === 'def') playerStats[pid].def++;
+      if (r1 === 'bench') playerStats[pid].subs++;
+      if (r2 === 'fwd') playerStats[pid].fwd++;
+      if (r2 === 'def') playerStats[pid].def++;
+      if (r2 === 'bench') playerStats[pid].subs++;
     });
   });
 
@@ -883,7 +902,7 @@ function buildHalfHTML(qd, halfSuffix, fwds, defs, bench, off, qn, showSwap) {
 
 function playerRowHTML(p, cls, label, halfId, qn, halfKey) {
   const pbCls = {fwd:'pb-fwd',def:'pb-def',sub:'pb-sub',out:'pb-out'}[cls]||'pb-out';
-  const role = cls==='sub'?'fwd':cls;
+  const role = cls==='sub'?'fwd' : cls==='out'?'bench' : cls;
   return `<div class="player-row ${cls}" data-pid="${p.id}" data-role="${role}" data-halfid="${halfId}" data-qn="${qn}" data-halfkey="${halfKey}" onclick="handlePlayerRowClick(this)">
     <span class="player-name">${p.name}</span>
     <span class="pos-badge ${pbCls}" id="badge-${halfId}-${p.id}">${label}</span>
@@ -1009,27 +1028,40 @@ function buildGameSummary() {
     const qi = qd.q - 1;
     const ia = qi * 2;     // 1st half index
     const ib = qi * 2 + 1; // 2nd half index
-    const qs = quarterState[qd.q] || {};
-    const overH1 = qs.h1 || {}, overH2 = qs.h2 || {};
 
-    // Goalie — full quarter
+    // Goalie — full quarter (unchanged by overrides)
     if (playerTotals[qd.goalie.id] !== undefined) {
       playerTotals[qd.goalie.id].gk++;
       segMap[qd.goalie.id][ia] = 'gk';
       segMap[qd.goalie.id][ib] = 'gk';
     }
 
-    // Build per-half role maps
+    // Read roles directly from live DOM data-role attributes so overrides are included
+    // data-role is updated by performSwap when the coach makes an override
     const h1map = {}, h2map = {};
-    qd.half1.fwds.forEach(p  => h1map[p.id] = overH1[p.id] || 'fwd');
-    qd.half1.defs.forEach(p  => h1map[p.id] = overH1[p.id] || 'def');
-    if (qd.half1.bench) qd.half1.bench.forEach(p => h1map[p.id] = overH1[p.id] || 'bench');
-    qd.half2.fwds.forEach(p  => h2map[p.id] = overH2[p.id] || 'fwd');
-    qd.half2.defs.forEach(p  => h2map[p.id] = overH2[p.id] || 'def');
-    if (qd.half2.off) qd.half2.off.forEach(p => h2map[p.id] = overH2[p.id] || 'bench');
+    const h1el = document.getElementById(`q${qd.q}-h1`);
+    const h2el = document.getElementById(`q${qd.q}-h2`);
 
-    const subInIds  = new Set((qd.subIn    ||[]).map(p=>p.id));
-    const subOutIds = new Set((qd.comingOff||[]).map(p=>p.id));
+    if (h1el) {
+      h1el.querySelectorAll('.player-row[data-pid]').forEach(row => {
+        const r = row.dataset.role || 'bench'; h1map[row.dataset.pid] = (r==='out')?'bench':r;
+      });
+    } else {
+      // Fallback if DOM not available — use gameData
+      qd.half1.fwds.forEach(p  => h1map[p.id] = 'fwd');
+      qd.half1.defs.forEach(p  => h1map[p.id] = 'def');
+      if (qd.half1.bench) qd.half1.bench.forEach(p => h1map[p.id] = 'bench');
+    }
+
+    if (h2el) {
+      h2el.querySelectorAll('.player-row[data-pid]').forEach(row => {
+        const r = row.dataset.role || 'bench'; h2map[row.dataset.pid] = (r==='out')?'bench':r;
+      });
+    } else {
+      qd.half2.fwds.forEach(p  => h2map[p.id] = 'fwd');
+      qd.half2.defs.forEach(p  => h2map[p.id] = 'def');
+      if (qd.half2.off) qd.half2.off.forEach(p => h2map[p.id] = 'bench');
+    }
 
     present.forEach(p => {
       if (p.id === qd.goalie.id) return;
@@ -1038,29 +1070,18 @@ function buildGameSummary() {
       const r1 = h1map[p.id] || 'bench';
       const r2 = h2map[p.id] || 'bench';
 
-      // Map each half independently to its segment type
-      const toSeg = (r, isSub) => {
-        if (isSub) return 'bench'; // on bench this half
-        if (r === 'fwd') return 'fwd';
-        if (r === 'def') return 'def';
-        return 'bench'; // sat out
-      };
+      // Segment type maps directly from role
+      const toSeg = r => (r === 'fwd' || r === 'def') ? r : 'bench';
+      segMap[p.id][ia] = toSeg(r1);
+      segMap[p.id][ib] = toSeg(r2);
 
-      const seg1 = toSeg(r1, subInIds.has(p.id));   // benched 1st half → sub in
-      const seg2 = toSeg(r2, subOutIds.has(p.id));  // benched 2nd half → sub out
-
-      segMap[p.id][ia] = seg1;
-      segMap[p.id][ib] = seg2;
-
-      // Totals: count playing positions from the half they actually played
-      // fwd/def counted from whichever half they were on field
-      if (r1==='fwd' && !subInIds.has(p.id))  playerTotals[p.id].fwd++;
-      if (r1==='def' && !subInIds.has(p.id))  playerTotals[p.id].def++;
-      if (r2==='fwd' && !subOutIds.has(p.id)) playerTotals[p.id].fwd++;
-      if (r2==='def' && !subOutIds.has(p.id)) playerTotals[p.id].def++;
-      // Subs: each bench half counts as one sub involvement
-      if (subInIds.has(p.id))  playerTotals[p.id].subs++;
-      if (subOutIds.has(p.id)) playerTotals[p.id].subs++;
+      // Totals — read directly from the resolved role
+      if (r1 === 'fwd') playerTotals[p.id].fwd++;
+      if (r1 === 'def') playerTotals[p.id].def++;
+      if (r1 === 'bench') playerTotals[p.id].subs++;
+      if (r2 === 'fwd') playerTotals[p.id].fwd++;
+      if (r2 === 'def') playerTotals[p.id].def++;
+      if (r2 === 'bench') playerTotals[p.id].subs++;
     });
   });
 
