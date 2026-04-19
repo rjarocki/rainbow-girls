@@ -119,6 +119,20 @@ header h1 { font-family:'Fredoka One',cursive; font-size:clamp(1.9rem,6.5vw,3.2r
 .quarter-panel { display:none; padding:14px 14px 0; }
 .quarter-panel.active { display:block; }
 
+/* GOALIE OVERRIDE MODAL */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:200; display:flex; align-items:flex-end; justify-content:center; }
+.modal-sheet { background:var(--dark); border-radius:20px 20px 0 0; padding:20px 16px 40px; width:100%; max-width:480px; max-height:80vh; overflow-y:auto; }
+.modal-title { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:.06em; color:var(--text); margin-bottom:4px; }
+.modal-sub { font-size:.75rem; color:var(--muted); margin-bottom:16px; }
+.modal-player-row { display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--card); border:1px solid var(--line); border-radius:10px; margin-bottom:8px; cursor:pointer; transition:all .15s; }
+.modal-player-row:hover { border-color:var(--gold); background:rgba(240,192,64,.06); }
+.modal-player-row.current-gk { border-color:var(--gold); background:rgba(240,192,64,.1); }
+.modal-player-avatar { width:32px; height:32px; border-radius:50%; background:var(--card2); border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; color:var(--muted); flex-shrink:0; }
+.modal-player-row.current-gk .modal-player-avatar { border-color:var(--gold); color:#b8860b; background:rgba(240,192,64,.1); }
+.modal-player-name { flex:1; font-size:.86rem; font-weight:600; }
+.modal-player-pos { font-size:.68rem; color:var(--muted); }
+.modal-cancel-btn { width:100%; background:transparent; border:1px solid var(--line); color:var(--muted); padding:10px; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:.82rem; cursor:pointer; margin-top:4px; }
+
 /* GOALIE CARD */
 .goalie-card { background:linear-gradient(135deg,rgba(240,192,64,.15),rgba(240,192,64,.05)); border:1px solid rgba(240,192,64,.4); border-radius:12px; padding:11px 14px; display:flex; align-items:center; gap:10px; margin-bottom:12px; }
 .goalie-icon { font-size:1.3rem; }
@@ -274,43 +288,45 @@ header h1 { font-family:'Fredoka One',cursive; font-size:clamp(1.9rem,6.5vw,3.2r
       <button class="att-btn-sm" onclick="setAllAttendance(true)">✓ All Present</button>
       <button class="att-btn-sm" onclick="setAllAttendance(false)">✗ All Absent</button>
     </div>
-    <!-- GitHub Settings Bar -->
-    <div class="gh-bar" id="gh-bar" onclick="toggleGhSettings()">
-      <div class="gh-bar-left">
-        <div class="gh-bar-icon">🔗</div>
-        <div>
-          <div class="gh-bar-label" id="gh-bar-label">Connect GitHub</div>
-          <div class="gh-bar-status" id="gh-bar-status">Save stats to your repo</div>
-        </div>
-      </div>
-      <div class="gh-bar-arrow">⚙️</div>
-    </div>
-    <div class="gh-settings-panel" id="gh-settings-panel">
-      <div class="gh-field-label">GitHub Username</div>
-      <input class="gh-input" id="gh-username" placeholder="e.g. richcoach" autocomplete="off" autocapitalize="off">
-      <div class="gh-field-label">Repository Name</div>
-      <input class="gh-input" id="gh-repo" placeholder="e.g. rainbow-girls-rotation" autocomplete="off" autocapitalize="off">
-      <div class="gh-field-label">Personal Access Token</div>
-      <input class="gh-input" id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-      <div class="gh-input-note">Token needs <strong>repo</strong> scope. Generate at GitHub → Settings → Developer Settings → Personal Access Tokens. Stored only on this device.</div>
-      <div id="gh-sync-status" class="gh-sync-status"></div>
-      <button class="gh-save-btn" onclick="saveGhSettings()">Save & Test Connection</button>
-      <button class="gh-clear-btn" onclick="clearGhSettings()">Disconnect GitHub</button>
-    </div>
-
-    <!-- Position Restrictions -->
+    <!-- Position Preferences -->
     <div class="restrict-bar" onclick="toggleRestrictPanel()">
-      <div class="restrict-bar-left">🚫 <span id="restrict-bar-label">Position Restrictions</span></div>
+      <div class="restrict-bar-left">⚽ <span id="restrict-bar-label">Position Preferences</span></div>
       <span style="font-size:.8rem;color:var(--muted)">⚙️</span>
     </div>
     <div class="restrict-panel" id="restrict-panel">
-      <div class="restrict-title">Toggle restrictions per player</div>
+      <div class="restrict-title">Set preferences per player</div>
       <div id="restrict-list"></div>
     </div>
 
     <div class="att-grid" id="att-grid"></div>
     <button class="start-btn" id="start-btn" onclick="startGame()">Generate Rotation ▶</button>
     <div class="start-btn-sub" id="start-btn-sub">10 girls · 3 bench per quarter</div>
+
+    <!-- GitHub Settings Bar — moved to bottom -->
+    <div style="margin-top:16px">
+      <div class="gh-bar" id="gh-bar" onclick="toggleGhSettings()">
+        <div class="gh-bar-left">
+          <div class="gh-bar-icon">🔗</div>
+          <div>
+            <div class="gh-bar-label" id="gh-bar-label">Connect GitHub</div>
+            <div class="gh-bar-status" id="gh-bar-status">Save stats to your repo</div>
+          </div>
+        </div>
+        <div class="gh-bar-arrow">⚙️</div>
+      </div>
+      <div class="gh-settings-panel" id="gh-settings-panel">
+        <div class="gh-field-label">GitHub Username</div>
+        <input class="gh-input" id="gh-username" placeholder="e.g. richcoach" autocomplete="off" autocapitalize="off">
+        <div class="gh-field-label">Repository Name</div>
+        <input class="gh-input" id="gh-repo" placeholder="e.g. rainbow-girls-rotation" autocomplete="off" autocapitalize="off">
+        <div class="gh-field-label">Personal Access Token</div>
+        <input class="gh-input" id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+        <div class="gh-input-note">Token needs <strong>repo</strong> scope. Generate at GitHub → Settings → Developer Settings → Personal Access Tokens. Stored only on this device.</div>
+        <div id="gh-sync-status" class="gh-sync-status"></div>
+        <button class="gh-save-btn" onclick="saveGhSettings()">Save & Test Connection</button>
+        <button class="gh-clear-btn" onclick="clearGhSettings()">Disconnect GitHub</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -324,6 +340,16 @@ header h1 { font-family:'Fredoka One',cursive; font-size:clamp(1.9rem,6.5vw,3.2r
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Goalie Override Modal -->
+<div class="modal-overlay" id="goalie-modal" style="display:none" onclick="closeGoalieModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-title">Change Goalkeeper</div>
+    <div class="modal-sub" id="goalie-modal-sub">Select a player to take over in goal</div>
+    <div id="goalie-modal-list"></div>
+    <button class="modal-cancel-btn" onclick="closeGoalieModal()">Cancel</button>
+  </div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════
@@ -370,16 +396,28 @@ function renderRestrictList() {
   list.innerHTML = '';
   PLAYERS.forEach(p => {
     const noGK = restrictions[p.id]?.noGK || false;
+    const pref = restrictions[p.id]?.posPref || 'none';
     const row = document.createElement('div');
     row.className = 'restrict-player';
+    row.style.cssText = 'flex-direction:column;align-items:flex-start;gap:8px;padding:10px 0;';
     row.innerHTML = `
-      <span class="restrict-name">${p.name}</span>
-      <div class="restrict-toggle">
-        <span class="restrict-label">No GK</span>
-        <label class="toggle-sm">
-          <input type="checkbox" ${noGK ? 'checked' : ''} onchange="toggleNoGK('${p.id}', this.checked)">
-          <span class="toggle-sm-slider"></span>
-        </label>
+      <span class="restrict-name" style="font-weight:600">${p.name}</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px">
+        <div class="restrict-toggle">
+          <span class="restrict-label">No GK</span>
+          <label class="toggle-sm">
+            <input type="checkbox" ${noGK ? 'checked' : ''} onchange="toggleNoGK('${p.id}', this.checked)">
+            <span class="toggle-sm-slider"></span>
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="restrict-label">Prefers</span>
+          <select onchange="setPosePref('${p.id}', this.value)" style="border:1px solid var(--line);background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.75rem;padding:3px 6px;border-radius:6px;outline:none">
+            <option value="none" ${pref==='none'?'selected':''}>None</option>
+            <option value="fwd"  ${pref==='fwd' ?'selected':''}>Fwd</option>
+            <option value="def"  ${pref==='def' ?'selected':''}>Def</option>
+          </select>
+        </div>
       </div>`;
     list.appendChild(row);
   });
@@ -393,13 +431,24 @@ function toggleNoGK(pid, val) {
   updateRestrictBar();
 }
 
+function setPosePref(pid, val) {
+  if (!restrictions[pid]) restrictions[pid] = {};
+  restrictions[pid].posPref = val;
+  saveRestrictions(restrictions);
+  updateRestrictBar();
+}
+
 function updateRestrictBar() {
-  const count = Object.values(restrictions).filter(r => r.noGK).length;
+  const noGKcount = Object.values(restrictions).filter(r => r.noGK).length;
+  const prefCount = Object.values(restrictions).filter(r => r.posPref && r.posPref !== 'none').length;
+  const total = noGKcount + prefCount;
   const label = document.getElementById('restrict-bar-label');
-  if (label) label.textContent = count > 0 ? `Position Restrictions (${count} active)` : 'Position Restrictions';
+  if (label) label.textContent = total > 0 ? `Position Preferences (${total} active)` : 'Position Preferences';
 }
 let gameData = null;
 let halfSwapState = {};
+// Goalie overrides per quarter: goalieOverrides[qn] = { newGoalie: player, displaced: player, displacedOriginalRole: 'fwd'|'def' }
+let goalieOverrides = {};
 // Per-quarter position overrides stored in memory
 // quarterState[q] = { h1: {pid: {cls, label, pbcls}}, h2: {...} }
 let quarterState = {};
@@ -812,7 +861,17 @@ function generateRotation(presentPlayers) {
 
     const fieldThisQ = available.filter(p => !benchThisQ.find(b => b.id === p.id));
     const fc = fieldThisQ.length, fwdCount = Math.min(3, fc);
-    const rotated = rotateArray(fieldThisQ, q * Math.floor(fc/2));
+    // Soft position preference: sort so preferred-fwd players tend toward front (fwd slots)
+    // and preferred-def toward back (def slots), while maintaining overall balance
+    const prefSorted = [...fieldThisQ].sort((a,b) => {
+      const pa = restrictions[a.id]?.posPref || 'none';
+      const pb = restrictions[b.id]?.posPref || 'none';
+      const score = p => p==='fwd'?-1 : p==='def'?1 : 0;
+      return score(pa) - score(pb);
+    });
+    // Rotate for variety across quarters, but start from pref-sorted order
+    const rotateOffset = q * Math.floor(fc/2);
+    const rotated = rotateArray(prefSorted, rotateOffset);
     const fwds1st = rotated.slice(0, fwdCount), defs1st = rotated.slice(fwdCount);
 
     const offCands = [...rotated].sort((a,b) => {
@@ -855,6 +914,7 @@ function startGame() {
   if (present.length < 1) return;
   halfSwapState = {};
   quarterState = {};
+  goalieOverrides = {};
   gameData = generateRotation(present);
   const dateStr = document.getElementById('game-date').value || getTodayStr();
   document.getElementById('screen-attendance').classList.remove('active');
@@ -905,13 +965,16 @@ function buildQuarterHTML(qd, idx) {
   let html = ``;
 
   // Goalie card
-  html += `<div class="goalie-card">
+  const gkOverride = goalieOverrides[qn];
+  const displayGoalie = gkOverride ? gkOverride.newGoalie : qd.goalie;
+  const gkStar = !displayGoalie.prevGoalie ? ' ⭐' : '';
+  html += `<div class="goalie-card" onclick="openGoalieModal(${qn})" style="cursor:pointer" title="Tap to change goalie">
     <div class="goalie-icon">🧤</div>
     <div class="goalie-info">
-      <div class="goalie-name">${qd.goalie.name}</div>
-      <div class="goalie-sub">Goalkeeper${goalieStar}</div>
+      <div class="goalie-name">${displayGoalie.name}</div>
+      <div class="goalie-sub">Goalkeeper${gkStar} <span style="font-size:.6rem;opacity:.6">(tap to change)</span></div>
     </div>
-    <span class="full-q-badge">Full Q</span>
+    <span class="full-q-badge">Full Q ✏️</span>
   </div>`;
 
   // Quarter-level done button
@@ -1479,6 +1542,118 @@ async function clearHistoryStandalone() {
     showToast('Season stats cleared');
   }
   document.getElementById('season-screen-content').innerHTML = buildSeasonSummaryStandalone();
+}
+
+// ═══════════════════════════════════════════
+//  GOALIE OVERRIDE
+// ═══════════════════════════════════════════
+let goalieModalQn = null;
+
+function openGoalieModal(qn) {
+  goalieModalQn = qn;
+  const qd = gameData.quarters.find(q => q.q === qn);
+  if (!qd) return;
+  const present = PLAYERS.filter(p => attendance[p.id]);
+  const currentGoalie = goalieOverrides[qn] ? goalieOverrides[qn].newGoalie : qd.goalie;
+
+  document.getElementById('goalie-modal-sub').textContent = `Q${qn} — currently ${currentGoalie.name}`;
+
+  const list = document.getElementById('goalie-modal-list');
+  list.innerHTML = '';
+
+  present.forEach(p => {
+    const isCurrent = p.id === currentGoalie.id;
+    // Find what position this player is originally assigned in this quarter
+    const inH1Fwds = qd.half1.fwds.find(x => x.id === p.id);
+    const inH1Defs = qd.half1.defs.find(x => x.id === p.id);
+    const inBench  = qd.bench.find(x => x.id === p.id);
+    const origPos  = inH1Fwds ? 'Fwd' : inH1Defs ? 'Def' : inBench ? 'Bench' : isCurrent ? 'GK' : '—';
+
+    const row = document.createElement('div');
+    row.className = `modal-player-row${isCurrent ? ' current-gk' : ''}`;
+    row.onclick = () => applyGoalieOverride(qn, p);
+    row.innerHTML = `
+      <div class="modal-player-avatar">${p.initials}</div>
+      <div class="modal-player-name">${p.name}</div>
+      <div class="modal-player-pos">${isCurrent ? '🧤 Current GK' : origPos}</div>`;
+    list.appendChild(row);
+  });
+
+  document.getElementById('goalie-modal').style.display = 'flex';
+}
+
+function closeGoalieModal(e) {
+  if (e && e.target !== document.getElementById('goalie-modal')) return;
+  document.getElementById('goalie-modal').style.display = 'none';
+  goalieModalQn = null;
+}
+
+function applyGoalieOverride(qn, newGoalie) {
+  const qd = gameData.quarters.find(q => q.q === qn);
+  if (!qd) return;
+
+  const currentGoalie = goalieOverrides[qn] ? goalieOverrides[qn].newGoalie : qd.goalie;
+  if (newGoalie.id === currentGoalie.id) {
+    // Tapped current goalie — clear override
+    delete goalieOverrides[qn];
+    document.getElementById('goalie-modal').style.display = 'none';
+    rebuildQuarterPanel(qn);
+    showToast(`GK reset to ${qd.goalie.name}`);
+    return;
+  }
+
+  // Find new goalie's original position in this quarter so displaced goalie can take it
+  const inH1Fwds = qd.half1.fwds.find(x => x.id === newGoalie.id);
+  const inH1Defs = qd.half1.defs.find(x => x.id === newGoalie.id);
+  const origRole = inH1Fwds ? 'fwd' : inH1Defs ? 'def' : 'fwd'; // default fwd if was on bench
+
+  goalieOverrides[qn] = {
+    newGoalie,
+    displaced: currentGoalie,
+    displacedRole: origRole
+  };
+
+  document.getElementById('goalie-modal').style.display = 'none';
+  rebuildQuarterPanel(qn);
+  showToast(`🧤 ${newGoalie.name} → GK Q${qn}`);
+}
+
+function rebuildQuarterPanel(qn) {
+  const idx = qn - 1;
+  const panel = document.getElementById(`panel-${idx}`);
+  if (!panel) return;
+
+  // Apply goalie override to gameData for this quarter before rebuilding
+  const qd = gameData.quarters.find(q => q.q === qn);
+  const override = goalieOverrides[qn];
+
+  if (override) {
+    // Temporarily patch qd for rendering — swap new goalie in, put displaced in their slot
+    const patched = JSON.parse(JSON.stringify(qd));
+    patched.goalie = override.newGoalie;
+
+    // Remove new goalie from field lists and add displaced goalie in their place
+    ['half1','half2'].forEach(half => {
+      ['fwds','defs'].forEach(pos => {
+        patched[half][pos] = patched[half][pos].filter(p => p.id !== override.newGoalie.id);
+      });
+      if (patched[half].bench) patched[half].bench = patched[half].bench.filter(p => p.id !== override.newGoalie.id);
+      if (patched[half].off)   patched[half].off   = patched[half].off.filter(p => p.id !== override.newGoalie.id);
+    });
+
+    // Remove original goalie from nowhere (they weren't in field lists) — add displaced into correct position
+    if (override.displacedRole === 'fwd') {
+      patched.half1.fwds.push(override.displaced);
+      patched.half2.fwds.push(override.displaced);
+    } else {
+      patched.half1.defs.push(override.displaced);
+      patched.half2.defs.push(override.displaced);
+    }
+
+    panel.innerHTML = buildQuarterHTML(patched, idx);
+  } else {
+    panel.innerHTML = buildQuarterHTML(qd, idx);
+  }
 }
 
 // ── INIT ──
