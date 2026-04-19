@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>⚽ The Rainbow Girls</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fredoka+One&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 :root {
@@ -18,8 +19,8 @@ body { background:var(--dark); color:var(--text); font-family:'DM Sans',sans-ser
 
 /* HEADER */
 header { background:linear-gradient(180deg,#4fc3f7 0%,#81d4fa 40%,#b3e5fc 100%); border-bottom:3px solid transparent; border-image:linear-gradient(90deg,#ff4e4e,#ff9a00,#ffe600,#4cce4c,#3ab5e6,#a64dd4) 1; padding:20px 20px 16px; text-align:center; position:sticky; top:0; z-index:100; overflow:hidden; }
-header::before { content:''; position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 60px 30px at 10% 30%,rgba(255,255,255,.9) 0%,transparent 70%),radial-gradient(ellipse 40px 22px at 7% 38%,rgba(255,255,255,.85) 0%,transparent 70%),radial-gradient(ellipse 80px 35px at 75% 20%,rgba(255,255,255,.9) 0%,transparent 70%),radial-gradient(ellipse 55px 25px at 70% 30%,rgba(255,255,255,.85) 0%,transparent 70%),radial-gradient(ellipse 50px 25px at 45% 65%,rgba(255,255,255,.7) 0%,transparent 70%); }
-header h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,7vw,3.4rem); letter-spacing:.06em; background:linear-gradient(90deg,#cc0000,#cc2288,#9900cc,#6600cc,#440099); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 1px 3px rgba(0,0,0,.3)); position:relative; }
+header::before { content:’’; position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse 60px 30px at 10% 30%,rgba(255,255,255,.9) 0%,transparent 70%),radial-gradient(ellipse 40px 22px at 7% 38%,rgba(255,255,255,.85) 0%,transparent 70%),radial-gradient(ellipse 80px 35px at 75% 20%,rgba(255,255,255,.9) 0%,transparent 70%),radial-gradient(ellipse 55px 25px at 70% 30%,rgba(255,255,255,.85) 0%,transparent 70%),radial-gradient(ellipse 50px 25px at 45% 65%,rgba(255,255,255,.7) 0%,transparent 70%); }
+header h1 { font-family:‘Fredoka One’,cursive; font-size:clamp(1.9rem,6.5vw,3.2rem); letter-spacing:.03em; background:linear-gradient(90deg,#ff2200 0%,#ff7700 18%,#ffcc00 34%,#33cc33 50%,#1199ee 68%,#8833dd 84%,#cc0099 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 1px 4px rgba(0,0,0,.18)); position:relative; }
 .header-sub { font-size:.72rem; color:#cc0000; letter-spacing:.14em; text-transform:uppercase; margin-top:2px; position:relative; font-weight:600; }
 
 /* SCREENS */
@@ -27,75 +28,94 @@ header h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,7vw,3.4rem
 
 /* ATTENDANCE */
 #screen-attendance { padding:16px; max-width:100%; }
-.att-title { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:.06em; color:var(--green); margin-bottom:4px; }
-.att-subtitle { font-size:.78rem; color:var(--muted); margin-bottom:12px; }
+.att-title { font-family:‘Bebas Neue’,sans-serif; font-size:1.6rem; letter-spacing:.06em; color:var(–green); margin-bottom:4px; }
+.att-subtitle { font-size:.78rem; color:var(–muted); margin-bottom:12px; }
 
 /* Date field */
-.date-row { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; margin-bottom:14px; }
-.date-label { font-size:.75rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; flex-shrink:0; }
-.date-input { flex:1; border:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:600; color:var(--text); outline:none; cursor:pointer; }
+.date-row { display:flex; align-items:center; gap:10px; background:var(–card); border:1px solid var(–line); border-radius:10px; padding:10px 14px; margin-bottom:14px; }
+.date-label { font-size:.75rem; font-weight:600; color:var(–muted); text-transform:uppercase; letter-spacing:.08em; flex-shrink:0; }
+.date-input { flex:1; border:none; background:transparent; font-family:‘DM Sans’,sans-serif; font-size:.88rem; font-weight:600; color:var(–text); outline:none; cursor:pointer; }
 .date-input::-webkit-calendar-picker-indicator { cursor:pointer; opacity:.6; }
 
-.att-count-bar { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.att-count-num { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--green); line-height:1; }
-.att-count-label { font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+.att-count-bar { background:var(–card); border:1px solid var(–line); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.att-count-num { font-family:‘Bebas Neue’,sans-serif; font-size:2rem; color:var(–green); line-height:1; }
+.att-count-label { font-size:.72rem; color:var(–muted); text-transform:uppercase; letter-spacing:.1em; }
 .att-count-right { text-align:right; }
-.bench-preview { font-size:.75rem; color:var(--muted); }
-.bench-preview span { color:var(--green); font-weight:600; }
+.bench-preview { font-size:.75rem; color:var(–muted); }
+.bench-preview span { color:var(–green); font-weight:600; }
 .att-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px; }
-.att-player { background:var(--card); border:2px solid var(--line); border-radius:12px; padding:10px 10px; display:flex; align-items:center; gap:8px; cursor:pointer; transition:all .15s; user-select:none; -webkit-user-select:none; }
+.att-player { background:var(–card); border:2px solid var(–line); border-radius:12px; padding:10px 10px; display:flex; align-items:center; gap:8px; cursor:pointer; transition:all .15s; user-select:none; -webkit-user-select:none; }
 .att-player:active { transform:scale(.97); }
-.att-player.present { border-color:var(--green); background:rgba(26,122,60,.06); }
-.att-player.absent  { border-color:var(--red); background:rgba(224,64,64,.05); opacity:.6; }
-.att-avatar { width:30px; height:30px; border-radius:50%; background:var(--card2); border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; color:var(--muted); flex-shrink:0; transition:all .15s; }
-.att-player.present .att-avatar { border-color:var(--green); color:var(--green); background:rgba(26,122,60,.08); }
-.att-player.absent  .att-avatar { border-color:var(--red); color:var(--red); }
+.att-player.present { border-color:var(–green); background:rgba(26,122,60,.06); }
+.att-player.absent  { border-color:var(–red); background:rgba(224,64,64,.05); opacity:.6; }
+.att-avatar { width:30px; height:30px; border-radius:50%; background:var(–card2); border:2px solid var(–line); display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; color:var(–muted); flex-shrink:0; transition:all .15s; }
+.att-player.present .att-avatar { border-color:var(–green); color:var(–green); background:rgba(26,122,60,.08); }
+.att-player.absent  .att-avatar { border-color:var(–red); color:var(–red); }
 .att-info { flex:1; min-width:0; }
 .att-name { font-size:.82rem; font-weight:600; line-height:1.2; word-break:break-word; }
 .att-role { display:none; }
 .att-player.present .att-role { color:rgba(26,122,60,.7); }
+
+/* RESTRICTIONS */
+.restrict-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(–card); border:1px solid var(–line); border-radius:10px; padding:9px 14px; margin-bottom:10px; cursor:pointer; transition:all .15s; }
+.restrict-bar:hover { border-color:var(–orange); }
+.restrict-bar-left { display:flex; align-items:center; gap:8px; font-size:.78rem; font-weight:600; color:var(–text); }
+.restrict-panel { background:var(–card); border:1px solid var(–line); border-radius:12px; padding:12px 14px; margin-bottom:14px; display:none; }
+.restrict-panel.open { display:block; }
+.restrict-title { font-size:.7rem; font-weight:700; color:var(–muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+.restrict-player { display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(–line); }
+.restrict-player:last-child { border-bottom:none; }
+.restrict-name { font-size:.82rem; font-weight:500; color:var(–text); }
+.restrict-toggle { display:flex; align-items:center; gap:6px; }
+.restrict-label { font-size:.68rem; color:var(–muted); }
+.toggle-sm { position:relative; width:36px; height:20px; cursor:pointer; flex-shrink:0; }
+.toggle-sm input { opacity:0; width:0; height:0; }
+.toggle-sm-slider { position:absolute; inset:0; background:#ccc; border-radius:999px; transition:background .2s; }
+.toggle-sm-slider::before { content:’’; position:absolute; width:14px; height:14px; left:3px; top:3px; background:white; border-radius:50%; transition:transform .2s; }
+.toggle-sm input:checked + .toggle-sm-slider { background:var(–red); }
+.toggle-sm input:checked + .toggle-sm-slider::before { transform:translateX(16px); }
 .att-check { font-size:1rem; flex-shrink:0; }
 .att-all-btns { display:flex; gap:8px; margin-bottom:16px; }
-.att-btn-sm { flex:1; background:var(--card); border:1px solid var(--line); color:var(--muted); padding:8px; border-radius:8px; font-size:.75rem; font-family:'DM Sans',sans-serif; cursor:pointer; text-transform:uppercase; letter-spacing:.06em; transition:all .15s; }
-.att-btn-sm:hover { border-color:var(--green); color:var(--green); }
-.start-btn { width:100%; background:linear-gradient(135deg,var(--green),#2a8a4a); border:none; color:white; padding:16px; border-radius:12px; font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:.1em; cursor:pointer; transition:all .2s; box-shadow:0 4px 20px rgba(26,122,60,.4); }
+.att-btn-sm { flex:1; background:var(–card); border:1px solid var(–line); color:var(–muted); padding:8px; border-radius:8px; font-size:.75rem; font-family:‘DM Sans’,sans-serif; cursor:pointer; text-transform:uppercase; letter-spacing:.06em; transition:all .15s; }
+.att-btn-sm:hover { border-color:var(–green); color:var(–green); }
+.start-btn { width:100%; background:linear-gradient(135deg,var(–green),#2a8a4a); border:none; color:white; padding:16px; border-radius:12px; font-family:‘Bebas Neue’,sans-serif; font-size:1.4rem; letter-spacing:.1em; cursor:pointer; transition:all .2s; box-shadow:0 4px 20px rgba(26,122,60,.4); }
 .start-btn:hover { transform:translateY(-1px); }
 .start-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
-.start-btn-sub { text-align:center; font-size:.72rem; color:var(--muted); margin-top:8px; }
+.start-btn-sub { text-align:center; font-size:.72rem; color:var(–muted); margin-top:8px; }
 
 /* GITHUB SETTINGS */
-.gh-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:9px 14px; margin-bottom:10px; cursor:pointer; transition:all .15s; }
-.gh-bar:hover { border-color:var(--green); }
+.gh-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(–card); border:1px solid var(–line); border-radius:10px; padding:9px 14px; margin-bottom:10px; cursor:pointer; transition:all .15s; }
+.gh-bar:hover { border-color:var(–green); }
 .gh-bar-left { display:flex; align-items:center; gap:8px; }
 .gh-bar-icon { font-size:1rem; }
-.gh-bar-label { font-size:.78rem; font-weight:600; color:var(--text); }
-.gh-bar-status { font-size:.65rem; color:var(--muted); margin-top:1px; }
-.gh-bar-arrow { color:var(--muted); font-size:.8rem; }
-.gh-bar.connected .gh-bar-label { color:var(--green); }
+.gh-bar-label { font-size:.78rem; font-weight:600; color:var(–text); }
+.gh-bar-status { font-size:.65rem; color:var(–muted); margin-top:1px; }
+.gh-bar-arrow { color:var(–muted); font-size:.8rem; }
+.gh-bar.connected .gh-bar-label { color:var(–green); }
 .gh-bar.connected { border-color:rgba(26,122,60,.3); background:rgba(26,122,60,.04); }
 
-.gh-settings-panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px; display:none; }
+.gh-settings-panel { background:var(–card); border:1px solid var(–line); border-radius:12px; padding:14px; margin-bottom:14px; display:none; }
 .gh-settings-panel.open { display:block; }
-.gh-field-label { font-size:.7rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px; margin-top:10px; }
+.gh-field-label { font-size:.7rem; font-weight:600; color:var(–muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px; margin-top:10px; }
 .gh-field-label:first-child { margin-top:0; }
-.gh-input { width:100%; border:1px solid var(--line); background:var(--dark); font-family:'DM Sans',sans-serif; font-size:.84rem; color:var(--text); padding:8px 10px; border-radius:8px; outline:none; transition:border-color .15s; }
-.gh-input:focus { border-color:var(--green); }
-.gh-input-note { font-size:.65rem; color:var(--muted); margin-top:4px; }
-.gh-save-btn { width:100%; background:var(--green); border:none; color:white; padding:10px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.82rem; font-weight:600; cursor:pointer; margin-top:12px; transition:all .15s; }
+.gh-input { width:100%; border:1px solid var(–line); background:var(–dark); font-family:‘DM Sans’,sans-serif; font-size:.84rem; color:var(–text); padding:8px 10px; border-radius:8px; outline:none; transition:border-color .15s; }
+.gh-input:focus { border-color:var(–green); }
+.gh-input-note { font-size:.65rem; color:var(–muted); margin-top:4px; }
+.gh-save-btn { width:100%; background:var(–green); border:none; color:white; padding:10px; border-radius:8px; font-family:‘DM Sans’,sans-serif; font-size:.82rem; font-weight:600; cursor:pointer; margin-top:12px; transition:all .15s; }
 .gh-save-btn:hover { opacity:.9; }
-.gh-clear-btn { width:100%; background:transparent; border:1px solid var(--line); color:var(--muted); padding:8px; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:.75rem; cursor:pointer; margin-top:6px; transition:all .15s; }
-.gh-clear-btn:hover { border-color:var(--red); color:var(--red); }
-.gh-sync-status { font-size:.72rem; text-align:center; margin-top:8px; min-height:18px; color:var(--muted); }
+.gh-clear-btn { width:100%; background:transparent; border:1px solid var(–line); color:var(–muted); padding:8px; border-radius:8px; font-family:‘DM Sans’,sans-serif; font-size:.75rem; cursor:pointer; margin-top:6px; transition:all .15s; }
+.gh-clear-btn:hover { border-color:var(–red); color:var(–red); }
+.gh-sync-status { font-size:.72rem; text-align:center; margin-top:8px; min-height:18px; color:var(–muted); }
 
 /* TABS */
-.quarter-tabs { display:flex; border-bottom:2px solid var(--line); background:#f0f0f0; position:sticky; top:73px; z-index:90; overflow-x:auto; scrollbar-width:none; }
+.quarter-tabs { display:flex; border-bottom:2px solid var(–line); background:#f0f0f0; position:sticky; top:73px; z-index:90; overflow-x:auto; scrollbar-width:none; }
 .quarter-tabs::-webkit-scrollbar { display:none; }
 .qtab { flex:1; min-width:55px; padding:10px 4px; text-align:center; cursor:pointer; border-bottom:3px solid transparent; transition:all .15s; user-select:none; }
-.qtab-num { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; color:var(--muted); line-height:1; }
-.qtab-label { font-size:.55rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-top:1px; }
-.qtab.active { border-bottom-color:var(--green); }
-.qtab.active .qtab-num, .qtab.active .qtab-label { color:var(--green); }
-.qtab-done-dot { width:6px; height:6px; background:var(--green); border-radius:50%; margin:3px auto 0; display:none; }
+.qtab-num { font-family:‘Bebas Neue’,sans-serif; font-size:1.2rem; color:var(–muted); line-height:1; }
+.qtab-label { font-size:.55rem; text-transform:uppercase; letter-spacing:.08em; color:var(–muted); margin-top:1px; }
+.qtab.active { border-bottom-color:var(–green); }
+.qtab.active .qtab-num, .qtab.active .qtab-label { color:var(–green); }
+.qtab-done-dot { width:6px; height:6px; background:var(–green); border-radius:50%; margin:3px auto 0; display:none; }
 .qtab.completed .qtab-done-dot { display:block; }
 .quarter-panel { display:none; padding:14px 14px 0; }
 .quarter-panel.active { display:block; }
@@ -110,182 +130,198 @@ header h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,7vw,3.4rem
 
 /* QUARTER DONE BAR */
 .quarter-done-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 14px; background:rgba(26,122,60,.04); border:1px solid rgba(26,122,60,.15); border-radius:10px; margin-bottom:12px; }
-.quarter-done-label { font-size:.72rem; color:var(--muted); }
-.quarter-done-btn { font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:6px 14px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--muted); cursor:pointer; transition:all .15s; }
-.quarter-done-btn.done { background:rgba(26,122,60,.1); border-color:var(--green); color:var(--green); }
+.quarter-done-label { font-size:.72rem; color:var(–muted); }
+.quarter-done-btn { font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:6px 14px; border-radius:999px; border:1px solid var(–line); background:transparent; color:var(–muted); cursor:pointer; transition:all .15s; }
+.quarter-done-btn.done { background:rgba(26,122,60,.1); border-color:var(–green); color:var(–green); }
 
 /* HALF SECTION */
-.half-section { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:10px; transition:opacity .2s; }
+.half-section { background:var(–card); border:1px solid var(–line); border-radius:12px; overflow:hidden; margin-bottom:10px; transition:opacity .2s; }
 .half-section.completed { opacity:.5; }
-.half-header { background:rgba(26,122,60,.05); border-bottom:1px solid var(--line); padding:7px 12px; display:flex; align-items:center; justify-content:space-between; gap:6px; }
-.half-title { font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--green); flex:1; }
-.swap-mode-btn { font-size:.63rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--muted); cursor:pointer; transition:all .15s; white-space:nowrap; }
-.swap-mode-btn.active { background:rgba(255,102,0,.1); border-color:var(--swap-sel); color:var(--swap-sel); }
+.half-header { background:rgba(26,122,60,.05); border-bottom:1px solid var(–line); padding:7px 12px; display:flex; align-items:center; justify-content:space-between; gap:6px; }
+.half-title { font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(–green); flex:1; }
+.swap-mode-btn { font-size:.63rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:4px 10px; border-radius:999px; border:1px solid var(–line); background:transparent; color:var(–muted); cursor:pointer; transition:all .15s; white-space:nowrap; }
+.swap-mode-btn.active { background:rgba(255,102,0,.1); border-color:var(–swap-sel); color:var(–swap-sel); }
 
 /* SWAP BANNER */
-.swap-banner { display:none; background:rgba(255,102,0,.08); border:1px solid rgba(255,102,0,.3); border-radius:8px; margin:0 0 8px; padding:8px 12px; font-size:.76rem; color:var(--swap-sel); align-items:center; justify-content:space-between; gap:8px; }
+.swap-banner { display:none; background:rgba(255,102,0,.08); border:1px solid rgba(255,102,0,.3); border-radius:8px; margin:0 0 8px; padding:8px 12px; font-size:.76rem; color:var(–swap-sel); align-items:center; justify-content:space-between; gap:8px; }
 .swap-banner.visible { display:flex; }
-.swap-cancel-btn { font-size:.65rem; font-weight:700; padding:3px 9px; border-radius:999px; border:1px solid var(--swap-sel); background:transparent; color:var(--swap-sel); cursor:pointer; }
+.swap-cancel-btn { font-size:.65rem; font-weight:700; padding:3px 9px; border-radius:999px; border:1px solid var(–swap-sel); background:transparent; color:var(–swap-sel); cursor:pointer; }
 
 /* NOTICE */
 .no-bench-notice { background:rgba(240,192,64,.07); border:1px solid rgba(240,192,64,.2); border-radius:8px; padding:9px 12px; font-size:.78rem; color:#b8860b; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
 
 /* POS LABEL */
-.pos-label { padding:4px 12px 3px; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); background:rgba(0,0,0,.03); border-bottom:1px solid rgba(0,0,0,.05); border-top:1px solid rgba(0,0,0,.05); }
+.pos-label { padding:4px 12px 3px; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(–muted); background:rgba(0,0,0,.03); border-bottom:1px solid rgba(0,0,0,.05); border-top:1px solid rgba(0,0,0,.05); }
 
 /* PLAYER ROW */
 .player-row { display:flex; align-items:center; padding:7px 12px; gap:9px; font-size:.82rem; border-bottom:1px solid rgba(0,0,0,.05); transition:background .12s; }
 .player-row:last-child { border-bottom:none; }
-.player-row.fwd { color:var(--orange); }
-.player-row.def { color:var(--blue); }
-.player-row.sub { color:var(--purple); font-weight:600; }
-.player-row.out { color:var(--red); opacity:.7; }
+.player-row.fwd { color:var(–orange); }
+.player-row.def { color:var(–blue); }
+.player-row.sub { color:var(–purple); font-weight:600; }
+.player-row.out { color:var(–red); opacity:.7; }
 .player-row.swappable { cursor:pointer; }
 .player-row.swappable:active { background:rgba(255,102,0,.05); }
-.player-row.swap-selected { background:rgba(255,102,0,.12) !important; outline:2px solid var(--swap-sel); outline-offset:-2px; border-radius:4px; }
+.player-row.swap-selected { background:rgba(255,102,0,.12) !important; outline:2px solid var(–swap-sel); outline-offset:-2px; border-radius:4px; }
 .player-name { flex:1; }
 .pos-badge { font-size:.6rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; padding:2px 6px; border-radius:999px; flex-shrink:0; white-space:nowrap; }
-.pb-fwd { background:rgba(224,138,48,.15); color:var(--orange); border:1px solid rgba(224,138,48,.3); }
-.pb-def { background:rgba(74,159,224,.12); color:var(--blue); border:1px solid rgba(74,159,224,.25); }
-.pb-sub { background:rgba(160,112,224,.15); color:var(--purple); border:1px solid rgba(160,112,224,.3); }
-.pb-out { background:rgba(224,64,64,.1); color:var(--red); border:1px solid rgba(224,64,64,.25); }
+.pb-fwd { background:rgba(224,138,48,.15); color:var(–orange); border:1px solid rgba(224,138,48,.3); }
+.pb-def { background:rgba(74,159,224,.12); color:var(–blue); border:1px solid rgba(74,159,224,.25); }
+.pb-sub { background:rgba(160,112,224,.15); color:var(–purple); border:1px solid rgba(160,112,224,.3); }
+.pb-out { background:rgba(224,64,64,.1); color:var(–red); border:1px solid rgba(224,64,64,.25); }
 .pb-gk  { background:rgba(240,192,64,.2); color:#b8860b; border:1px solid rgba(240,192,64,.4); }
 
 /* SUB PANEL */
 .sub-panel { margin:0 10px 10px; border-radius:10px; background:rgba(160,112,224,.07); border:1px solid rgba(160,112,224,.2); overflow:hidden; }
-.sub-panel-title { padding:6px 12px 4px; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--purple); border-bottom:1px solid rgba(160,112,224,.15); background:rgba(160,112,224,.05); }
+.sub-panel-title { padding:6px 12px 4px; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(–purple); border-bottom:1px solid rgba(160,112,224,.15); background:rgba(160,112,224,.05); }
 .sub-swap { display:flex; align-items:center; padding:7px 12px; gap:8px; border-bottom:1px solid rgba(160,112,224,.08); font-size:.8rem; cursor:pointer; transition:background .12s; }
 .sub-swap:last-child { border-bottom:none; }
 .sub-swap:active { background:rgba(160,112,224,.1); }
 .sub-swap.swap-done { opacity:.4; text-decoration:line-through; }
 .swap-check { width:18px; height:18px; flex-shrink:0; border-radius:50%; border:2px solid rgba(160,112,224,.4); background:transparent; position:relative; transition:all .15s; }
-.sub-swap.swap-done .swap-check { background:var(--purple); border-color:var(--purple); }
-.sub-swap.swap-done .swap-check::after { content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:.6rem; font-weight:700; color:white; }
-.swap-in { color:var(--purple); font-weight:600; flex:1; }
-.swap-arrow { color:var(--green); }
-.swap-out { color:var(--muted); flex:1; text-align:right; }
-.no-sub-notice { margin:0 10px 10px; border-radius:10px; background:rgba(26,122,60,.05); border:1px solid rgba(26,122,60,.15); padding:8px 12px; font-size:.75rem; color:var(--muted); }
+.sub-swap.swap-done .swap-check { background:var(–purple); border-color:var(–purple); }
+.sub-swap.swap-done .swap-check::after { content:‘✓’; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:.6rem; font-weight:700; color:white; }
+.swap-in { color:var(–purple); font-weight:600; flex:1; }
+.swap-arrow { color:var(–green); }
+.swap-out { color:var(–muted); flex:1; text-align:right; }
+.no-sub-notice { margin:0 10px 10px; border-radius:10px; background:rgba(26,122,60,.05); border:1px solid rgba(26,122,60,.15); padding:8px 12px; font-size:.75rem; color:var(–muted); }
 
 /* PROGRESS */
 .progress-wrap { padding:0 14px 14px; }
-.progress-label { display:flex; justify-content:space-between; font-size:.68rem; color:var(--muted); margin-bottom:5px; }
-.progress-bar { height:4px; background:var(--line); border-radius:999px; overflow:hidden; }
-.progress-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--lime)); border-radius:999px; transition:width .3s ease; width:0%; }
+.progress-label { display:flex; justify-content:space-between; font-size:.68rem; color:var(–muted); margin-bottom:5px; }
+.progress-bar { height:4px; background:var(–line); border-radius:999px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(–green),var(–lime)); border-radius:999px; transition:width .3s ease; width:0%; }
 .reset-wrap { text-align:center; padding:10px 14px 4px; }
-.reset-btn { background:transparent; border:1px solid var(--line); color:var(--muted); padding:7px 18px; border-radius:999px; font-size:.72rem; font-family:'DM Sans',sans-serif; cursor:pointer; letter-spacing:.06em; text-transform:uppercase; transition:all .15s; }
-.reset-btn:hover { border-color:var(--red); color:var(--red); }
+.reset-btn { background:transparent; border:1px solid var(–line); color:var(–muted); padding:7px 18px; border-radius:999px; font-size:.72rem; font-family:‘DM Sans’,sans-serif; cursor:pointer; letter-spacing:.06em; text-transform:uppercase; transition:all .15s; }
+.reset-btn:hover { border-color:var(–red); color:var(–red); }
 .edit-att-wrap { padding:16px 14px 4px; text-align:center; }
-.edit-att-btn { background:transparent; border:1px solid var(--line); color:var(--muted); padding:8px 18px; border-radius:999px; font-size:.72rem; font-family:'DM Sans',sans-serif; cursor:pointer; letter-spacing:.06em; text-transform:uppercase; transition:all .15s; }
-.edit-att-btn:hover { border-color:var(--green); color:var(--green); }
+.edit-att-btn { background:transparent; border:1px solid var(–line); color:var(–muted); padding:8px 18px; border-radius:999px; font-size:.72rem; font-family:‘DM Sans’,sans-serif; cursor:pointer; letter-spacing:.06em; text-transform:uppercase; transition:all .15s; }
+.edit-att-btn:hover { border-color:var(–green); color:var(–green); }
 
 /* SUMMARY */
 .summary-section { padding:14px; }
-.summary-title { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:.06em; color:var(--green); margin-bottom:10px; }
+.summary-title { font-family:‘Bebas Neue’,sans-serif; font-size:1.3rem; letter-spacing:.06em; color:var(–green); margin-bottom:10px; }
 .summary-tabs { display:flex; gap:8px; margin-bottom:14px; }
-.sum-tab { flex:1; padding:8px; border-radius:8px; border:1px solid var(--line); background:var(--card); font-size:.72rem; font-weight:600; text-align:center; cursor:pointer; color:var(--muted); transition:all .15s; }
-.sum-tab.active { background:var(--green); color:white; border-color:var(--green); }
-.save-game-btn { width:100%; background:linear-gradient(135deg,var(--green),#2a8a4a); border:none; color:white; padding:12px; border-radius:10px; font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:.1em; cursor:pointer; margin-bottom:14px; transition:all .2s; }
+.sum-tab { flex:1; padding:8px; border-radius:8px; border:1px solid var(–line); background:var(–card); font-size:.72rem; font-weight:600; text-align:center; cursor:pointer; color:var(–muted); transition:all .15s; }
+.sum-tab.active { background:var(–green); color:white; border-color:var(–green); }
+.save-game-btn { width:100%; background:linear-gradient(135deg,var(–green),#2a8a4a); border:none; color:white; padding:12px; border-radius:10px; font-family:‘Bebas Neue’,sans-serif; font-size:1.1rem; letter-spacing:.1em; cursor:pointer; margin-bottom:14px; transition:all .2s; }
 .save-game-btn:hover { opacity:.9; }
-.clear-history-btn { width:100%; background:transparent; border:1px solid var(--line); color:var(--muted); padding:8px; border-radius:8px; font-size:.72rem; font-family:'DM Sans',sans-serif; cursor:pointer; margin-top:8px; transition:all .15s; }
-.clear-history-btn:hover { border-color:var(--red); color:var(--red); }
+.clear-history-btn { width:100%; background:transparent; border:1px solid var(–line); color:var(–muted); padding:8px; border-radius:8px; font-size:.72rem; font-family:‘DM Sans’,sans-serif; cursor:pointer; margin-top:8px; transition:all .15s; }
+.clear-history-btn:hover { border-color:var(–red); color:var(–red); }
 
 /* PLAYER STAT CARD */
-.psc { background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:8px; }
-.psc-header { display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:1px solid var(--line); background:rgba(0,0,0,.02); }
-.psc-name { font-size:.85rem; font-weight:600; flex:1; color:var(--text); }
+.psc { background:var(–card); border:1px solid var(–line); border-radius:10px; overflow:hidden; margin-bottom:8px; }
+.psc-header { display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:1px solid var(–line); background:rgba(0,0,0,.02); }
+.psc-name { font-size:.85rem; font-weight:600; flex:1; color:var(–text); }
 .psc-badge { font-size:.68rem; font-weight:700; padding:2px 8px; border-radius:999px; }
-.psc-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); }
-.psc-stat { background:var(--dark); padding:7px 4px; text-align:center; }
-.psc-stat-num { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; line-height:1; }
-.psc-stat-label { font-size:.56rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-top:2px; }
+.psc-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(–line); }
+.psc-stat { background:var(–dark); padding:7px 4px; text-align:center; }
+.psc-stat-num { font-family:‘Bebas Neue’,sans-serif; font-size:1.2rem; line-height:1; }
+.psc-stat-label { font-size:.56rem; text-transform:uppercase; letter-spacing:.08em; color:var(–muted); margin-top:2px; }
 .stat-gk  { color:#b8860b; }
-.stat-fwd { color:var(--orange); }
-.stat-def { color:var(--blue); }
-.stat-out { color:var(--red); }
+.stat-fwd { color:var(–orange); }
+.stat-def { color:var(–blue); }
+.stat-out { color:var(–red); }
 .psc-segs { display:flex; gap:3px; padding:7px 12px; flex-wrap:wrap; }
 .seg { width:28px; height:22px; border-radius:5px; font-size:.6rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-direction:column; }
-.seg span { font-size:.48rem; color:var(--muted); margin-top:1px; }
-.seg-fwd { background:rgba(224,138,48,.15); color:var(--orange); }
-.seg-def { background:rgba(74,159,224,.12); color:var(--blue); }
+.seg span { font-size:.48rem; color:var(–muted); margin-top:1px; }
+.seg-fwd { background:rgba(224,138,48,.15); color:var(–orange); }
+.seg-def { background:rgba(74,159,224,.12); color:var(–blue); }
 .seg-gk  { background:rgba(240,192,64,.2); color:#b8860b; }
-.seg-sit { background:rgba(224,64,64,.1); color:var(--red); }
-.seg-bench { background:rgba(160,112,224,.12); color:var(--purple); }
+.seg-sit { background:rgba(224,64,64,.1); color:var(–red); }
+.seg-bench { background:rgba(160,112,224,.12); color:var(–purple); }
 .seg-abs { background:rgba(100,100,100,.08); color:#aaa; }
 
 /* GAME HISTORY */
-.game-hist-item { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; margin-bottom:8px; }
-.game-hist-date { font-size:.8rem; font-weight:600; color:var(--text); margin-bottom:2px; }
-.game-hist-players { font-size:.74rem; color:var(--muted); }
+.game-hist-item { background:var(–card); border:1px solid var(–line); border-radius:10px; padding:10px 14px; margin-bottom:8px; }
+.game-hist-date { font-size:.8rem; font-weight:600; color:var(–text); margin-bottom:2px; }
+.game-hist-players { font-size:.74rem; color:var(–muted); }
 
 /* TOAST */
-.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:#1a1a1a; border:1px solid var(--green); color:var(--lime); padding:9px 18px; border-radius:999px; font-size:.78rem; font-weight:600; letter-spacing:.06em; z-index:999; transition:transform .3s cubic-bezier(.34,1.56,.64,1); white-space:nowrap; pointer-events:none; }
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:#1a1a1a; border:1px solid var(–green); color:var(–lime); padding:9px 18px; border-radius:999px; font-size:.78rem; font-weight:600; letter-spacing:.06em; z-index:999; transition:transform .3s cubic-bezier(.34,1.56,.64,1); white-space:nowrap; pointer-events:none; }
 .toast.show { transform:translateX(-50%) translateY(0); }
 </style>
+
 </head>
 <body>
 
 <header>
-  <h1><span style="-webkit-text-fill-color:initial">🌈</span> The Rainbow Girls</h1>
+  <h1 style="white-space:nowrap"><span style="-webkit-text-fill-color:initial;font-style:normal">🌈</span> The Rainbow Girls <span style="-webkit-text-fill-color:initial;font-style:normal;display:inline-block;transform:rotate(90deg);vertical-align:middle">🌈</span></h1>
   <div class="header-sub" id="header-sub-static">Game Day Rotation</div>
   <div class="header-sub" id="header-sub" style="margin-top:2px">Mark attendance to begin</div>
 </header>
 
 <!-- ATTENDANCE SCREEN -->
+
 <div class="screen active" id="screen-attendance">
   <div style="padding:14px 14px 0">
     <div class="att-title">Who's Here Today?</div>
     <div class="att-subtitle">Set the game date and mark who's present</div>
 
-    <div class="date-row">
-      <div class="date-label">📅 Game Date</div>
-      <input type="date" class="date-input" id="game-date">
-    </div>
+```
+<div class="date-row">
+  <div class="date-label">📅 Game Date</div>
+  <input type="date" class="date-input" id="game-date">
+</div>
 
-    <div class="att-count-bar">
-      <div>
-        <div class="att-count-num" id="att-count">10</div>
-        <div class="att-count-label">Present</div>
-      </div>
-      <div class="att-count-right">
-        <div class="bench-preview" id="bench-preview">3 on bench per quarter</div>
-        <div style="font-size:.7rem;color:var(--muted);margin-top:3px" id="att-warning"></div>
-      </div>
+<div class="att-count-bar">
+  <div>
+    <div class="att-count-num" id="att-count">10</div>
+    <div class="att-count-label">Present</div>
+  </div>
+  <div class="att-count-right">
+    <div class="bench-preview" id="bench-preview">3 on bench per quarter</div>
+    <div style="font-size:.7rem;color:var(--muted);margin-top:3px" id="att-warning"></div>
+  </div>
+</div>
+<div class="att-all-btns">
+  <button class="att-btn-sm" onclick="setAllAttendance(true)">✓ All Present</button>
+  <button class="att-btn-sm" onclick="setAllAttendance(false)">✗ All Absent</button>
+</div>
+<!-- GitHub Settings Bar -->
+<div class="gh-bar" id="gh-bar" onclick="toggleGhSettings()">
+  <div class="gh-bar-left">
+    <div class="gh-bar-icon">🔗</div>
+    <div>
+      <div class="gh-bar-label" id="gh-bar-label">Connect GitHub</div>
+      <div class="gh-bar-status" id="gh-bar-status">Save stats to your repo</div>
     </div>
-    <div class="att-all-btns">
-      <button class="att-btn-sm" onclick="setAllAttendance(true)">✓ All Present</button>
-      <button class="att-btn-sm" onclick="setAllAttendance(false)">✗ All Absent</button>
-    </div>
-    <!-- GitHub Settings Bar -->
-    <div class="gh-bar" id="gh-bar" onclick="toggleGhSettings()">
-      <div class="gh-bar-left">
-        <div class="gh-bar-icon">🔗</div>
-        <div>
-          <div class="gh-bar-label" id="gh-bar-label">Connect GitHub</div>
-          <div class="gh-bar-status" id="gh-bar-status">Save stats to your repo</div>
-        </div>
-      </div>
-      <div class="gh-bar-arrow">⚙️</div>
-    </div>
-    <div class="gh-settings-panel" id="gh-settings-panel">
-      <div class="gh-field-label">GitHub Username</div>
-      <input class="gh-input" id="gh-username" placeholder="e.g. richcoach" autocomplete="off" autocapitalize="off">
-      <div class="gh-field-label">Repository Name</div>
-      <input class="gh-input" id="gh-repo" placeholder="e.g. rainbow-girls-rotation" autocomplete="off" autocapitalize="off">
-      <div class="gh-field-label">Personal Access Token</div>
-      <input class="gh-input" id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-      <div class="gh-input-note">Token needs <strong>repo</strong> scope. Generate at GitHub → Settings → Developer Settings → Personal Access Tokens. Stored only on this device.</div>
-      <div id="gh-sync-status" class="gh-sync-status"></div>
-      <button class="gh-save-btn" onclick="saveGhSettings()">Save & Test Connection</button>
-      <button class="gh-clear-btn" onclick="clearGhSettings()">Disconnect GitHub</button>
-    </div>
+  </div>
+  <div class="gh-bar-arrow">⚙️</div>
+</div>
+<div class="gh-settings-panel" id="gh-settings-panel">
+  <div class="gh-field-label">GitHub Username</div>
+  <input class="gh-input" id="gh-username" placeholder="e.g. richcoach" autocomplete="off" autocapitalize="off">
+  <div class="gh-field-label">Repository Name</div>
+  <input class="gh-input" id="gh-repo" placeholder="e.g. rainbow-girls-rotation" autocomplete="off" autocapitalize="off">
+  <div class="gh-field-label">Personal Access Token</div>
+  <input class="gh-input" id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+  <div class="gh-input-note">Token needs <strong>repo</strong> scope. Generate at GitHub → Settings → Developer Settings → Personal Access Tokens. Stored only on this device.</div>
+  <div id="gh-sync-status" class="gh-sync-status"></div>
+  <button class="gh-save-btn" onclick="saveGhSettings()">Save & Test Connection</button>
+  <button class="gh-clear-btn" onclick="clearGhSettings()">Disconnect GitHub</button>
+</div>
 
-    <div class="att-grid" id="att-grid"></div>
-    <button class="start-btn" id="start-btn" onclick="startGame()">Generate Rotation ▶</button>
-    <div class="start-btn-sub" id="start-btn-sub">10 girls · 3 bench per quarter</div>
+<!-- Position Restrictions -->
+<div class="restrict-bar" onclick="toggleRestrictPanel()">
+  <div class="restrict-bar-left">🚫 <span id="restrict-bar-label">Position Restrictions</span></div>
+  <span style="font-size:.8rem;color:var(--muted)">⚙️</span>
+</div>
+<div class="restrict-panel" id="restrict-panel">
+  <div class="restrict-title">Toggle restrictions per player</div>
+  <div id="restrict-list"></div>
+</div>
+
+<div class="att-grid" id="att-grid"></div>
+<button class="start-btn" id="start-btn" onclick="startGame()">Generate Rotation ▶</button>
+<div class="start-btn-sub" id="start-btn-sub">10 girls · 3 bench per quarter</div>
+```
+
   </div>
 </div>
 
 <!-- GAME SCREEN -->
+
 <div class="screen" id="screen-game">
   <div class="quarter-tabs" id="quarter-tabs"></div>
   <div id="quarter-panels"></div>
@@ -318,6 +354,57 @@ const PLAYERS = [
 // ═══════════════════════════════════════════
 let attendance = {};
 PLAYERS.forEach(p => attendance[p.id] = true);
+
+// Restrictions: { playerId: { noGK: bool } }
+// Stored in localStorage so they persist across sessions
+const RESTRICT_KEY = 'rainbow_girls_restrictions';
+function loadRestrictions() {
+  try { const r = localStorage.getItem(RESTRICT_KEY); return r ? JSON.parse(r) : {}; } catch(e) { return {}; }
+}
+function saveRestrictions(data) {
+  try { localStorage.setItem(RESTRICT_KEY, JSON.stringify(data)); } catch(e) {}
+}
+let restrictions = loadRestrictions();
+
+function toggleRestrictPanel() {
+  const panel = document.getElementById('restrict-panel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) renderRestrictList();
+}
+
+function renderRestrictList() {
+  const list = document.getElementById('restrict-list');
+  list.innerHTML = '';
+  PLAYERS.forEach(p => {
+    const noGK = restrictions[p.id]?.noGK || false;
+    const row = document.createElement('div');
+    row.className = 'restrict-player';
+    row.innerHTML = `
+      <span class="restrict-name">${p.name}</span>
+      <div class="restrict-toggle">
+        <span class="restrict-label">No GK</span>
+        <label class="toggle-sm">
+          <input type="checkbox" ${noGK ? 'checked' : ''} onchange="toggleNoGK('${p.id}', this.checked)">
+          <span class="toggle-sm-slider"></span>
+        </label>
+      </div>`;
+    list.appendChild(row);
+  });
+  updateRestrictBar();
+}
+
+function toggleNoGK(pid, val) {
+  if (!restrictions[pid]) restrictions[pid] = {};
+  restrictions[pid].noGK = val;
+  saveRestrictions(restrictions);
+  updateRestrictBar();
+}
+
+function updateRestrictBar() {
+  const count = Object.values(restrictions).filter(r => r.noGK).length;
+  const label = document.getElementById('restrict-bar-label');
+  if (label) label.textContent = count > 0 ? `Position Restrictions (${count} active)` : 'Position Restrictions';
+}
 let gameData = null;
 let halfSwapState = {};
 // Per-quarter position overrides stored in memory
@@ -345,6 +432,10 @@ function formatDate(dateStr) {
 //  STORAGE — LOCAL + GITHUB
 // ═══════════════════════════════════════════
 const STORAGE_KEY = 'rainbow_girls_v2';
+// Public read-only URL for stats.json — always fetchable regardless of GitHub auth
+// Update this if you rename your repo or move the file
+// GitHub Contents API — CORS-friendly, no auth needed for public repos
+const PUBLIC_STATS_URL = 'https://raw.githubusercontent.com/rjarocki/rainbow-girls/main/stats.json';
 const GH_KEY = 'rainbow_girls_gh';
 
 // ── Local cache ──
@@ -677,7 +768,9 @@ function generateRotation(presentPlayers) {
     });
   });
 
-  const goaliePool = [...presentPlayers].sort((a,b) => {
+  // Filter out any player with noGK restriction
+  const eligibleGKs = presentPlayers.filter(p => !restrictions[p.id]?.noGK);
+  const goaliePool = [...eligibleGKs].sort((a,b) => {
     // Primary: fewest total GK quarters across season
     const gkDiff = seasonGkCounts[a.id] - seasonGkCounts[b.id];
     if (gkDiff !== 0) return gkDiff;
@@ -688,7 +781,13 @@ function generateRotation(presentPlayers) {
     return a.goalieOrder - b.goalieOrder;
   });
   const goalies = [];
-  for (let q = 0; q < 4; q++) goalies.push(goaliePool[q % goaliePool.length]);
+  if (eligibleGKs.length === 0) {
+    // Fallback: if everyone is restricted, use all players anyway
+    const fallback = [...presentPlayers].sort((a,b) => seasonGkCounts[a.id] - seasonGkCounts[b.id]);
+    for (let q = 0; q < 4; q++) goalies.push(fallback[q % fallback.length]);
+  } else {
+    for (let q = 0; q < 4; q++) goalies.push(goaliePool[q % goaliePool.length]);
+  }
 
   let benchCounts = {}, halfOffCounts = {};
   presentPlayers.forEach(p => { benchCounts[p.id]=0; halfOffCounts[p.id]=0; });
@@ -789,7 +888,7 @@ function renderGameScreen() {
   const st = document.createElement('div');
   st.className = 'qtab';
   st.innerHTML = `<div class="qtab-num" style="font-size:.85rem;padding-top:6px">📊</div><div class="qtab-label">Stats</div><div class="qtab-done-dot"></div>`;
-  st.onclick = () => { switchTab(4); renderSummaryTab(); };
+  st.onclick = () => { switchTab(4); fetchAndRenderSummary(); };
   tabsEl.appendChild(st);
 
   gameData.quarters.forEach((qd, idx) => {
@@ -982,11 +1081,18 @@ function markQuarterDone(qn, idx, btn) {
   const isDone = !btn.classList.contains('done');
   btn.classList.toggle('done', isDone);
   btn.textContent = isDone ? `✓ Q${qn} Complete!` : `✓ Q${qn} Done`;
-  // Fade halves
   panel.querySelectorAll('.half-section').forEach(h => h.classList.toggle('completed', isDone));
   const tabEl = document.querySelectorAll('.qtab')[idx];
   tabEl.classList.toggle('completed', isDone);
-  if (isDone) showToast(`🎉 Q${qn} complete!`);
+  if (isDone) {
+    showToast(`🎉 Q${qn} complete!`);
+    // If summary tab is currently open and showing "This Game", refresh it
+    // so overrides from this quarter are reflected immediately
+    const summaryPanel = document.getElementById('panel-4');
+    if (summaryPanel && summaryPanel.classList.contains('active') && summaryView === 'game') {
+      renderSummaryTab();
+    }
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -1006,7 +1112,62 @@ function renderSummaryTab() {
   </div>`;
 }
 
-function setSummaryView(v) { summaryView=v; renderSummaryTab(); }
+function setSummaryView(v) {
+  summaryView = v;
+  if (v === 'season') {
+    fetchAndRenderSummary();
+  } else {
+    renderSummaryTab();
+  }
+}
+
+// Central fetch-then-render for season stats — always fetches fresh from GitHub first
+async function fetchAndRenderSummary() {
+  const el = document.getElementById('summary-content');
+  if (!el) return;
+
+  // Show loading indicator while fetching
+  el.innerHTML = `<div class="summary-section">
+    <div class="summary-title">Player Stats</div>
+    <div class="summary-tabs">
+      <div class="sum-tab" onclick="setSummaryView('game')">This Game</div>
+      <div class="sum-tab active">Season Total</div>
+    </div>
+    <div style="text-align:center;padding:30px;color:var(--muted);font-size:.82rem">
+      <div style="font-size:1.4rem;margin-bottom:8px">⏳</div>Fetching stats...
+    </div>
+  </div>`;
+
+  try {
+    const cfg = loadGhConfig();
+    if (cfg && cfg.token) {
+      // Authenticated — use GitHub API with token
+      console.log('Fetching stats with auth token...');
+      const { stats } = await ghReadStats(cfg);
+      saveStatsLocal(stats);
+      console.log('Stats loaded via authenticated API:', stats.games?.length, 'games');
+    } else {
+      // No token — fetch raw stats.json directly (works on GitHub Pages)
+      console.log('Fetching stats publicly from:', PUBLIC_STATS_URL);
+      const res = await fetch(PUBLIC_STATS_URL + '?t=' + Date.now());
+      console.log('Response status:', res.status, res.statusText);
+      if (res.ok) {
+        const data = await res.json();
+        saveStatsLocal(data);
+        console.log('Stats loaded publicly:', data.games?.length, 'games');
+      } else if (res.status === 404) {
+        console.log('stats.json not found on GitHub yet — using local cache');
+      } else {
+        console.warn('Fetch error:', res.status, res.statusText);
+      }
+    }
+  } catch(e) {
+    console.warn('Stats fetch error:', e.name, e.message);
+  }
+
+  // Render with whatever we have
+  renderSummaryTab();
+}
 
 function buildGameSummary() {
   if (!gameData) return '<p style="color:var(--muted);font-size:.82rem">Start a game to see stats.</p>';
@@ -1120,10 +1281,28 @@ function buildGameSummary() {
   return html;
 }
 
+async function syncPublicStats() {
+  // If username+repo set but no token, try to read stats.json as a public file
+  const cfg = loadGhConfig();
+  if (!cfg || !cfg.username || !cfg.repo || cfg.token) return; // skip if no config or already authed
+  try {
+    const url = `https://raw.githubusercontent.com/${cfg.username}/${cfg.repo}/main/stats.json`;
+    const res = await fetch(url + '?t=' + Date.now());
+    if (res.ok) {
+      const data = await res.json();
+      saveStatsLocal(data);
+    }
+  } catch(e) { /* silent */ }
+}
+
 function buildSeasonSummary() {
   const stats = loadStats();
   if (!stats.games.length) {
-    return `<p style="color:var(--muted);font-size:.82rem;margin-bottom:12px">No games saved yet. Play a game and tap "Save Game" in the This Game tab.</p>`;
+    const cfg = loadGhConfig();
+    const hint = cfg && cfg.username && !cfg.token
+      ? `<p style="font-size:.72rem;color:var(--muted);margin-top:8px">Tip: add your token in GitHub settings to sync stats.</p>`
+      : '';
+    return `<p style="color:var(--muted);font-size:.82rem;margin-bottom:12px">No games saved yet. Play a game and tap "Save Game" in the This Game tab.</p>${hint}`;
   }
 
   const totals = {};
@@ -1227,20 +1406,113 @@ function showToast(msg) {
   t._timer = setTimeout(()=>t.classList.remove('show'), 2400);
 }
 
+function buildSeasonSummaryStandalone() {
+  const stats = loadStats();
+  if (!stats.games.length) {
+    return `<div style="text-align:center;padding:40px 20px;color:var(--muted)">
+      <div style="font-size:2rem;margin-bottom:8px">📊</div>
+      <div style="font-size:.9rem;font-weight:600;margin-bottom:6px">No season stats yet</div>
+      <div style="font-size:.78rem">Play a game and tap Save Game in the Stats tab to record it.</div>
+    </div>`;
+  }
+
+  const totals = {};
+  PLAYERS.forEach(p => totals[p.id] = {gk:0,fwd:0,def:0,subs:0,games:0});
+  stats.games.forEach(g => {
+    Object.entries(g.players||{}).forEach(([pid,s]) => {
+      if (totals[pid]) {
+        totals[pid].gk   += s.gk  ||0;
+        totals[pid].fwd  += s.fwd ||0;
+        totals[pid].def  += s.def ||0;
+        totals[pid].subs += s.subs||0;
+        totals[pid].games++;
+      }
+    });
+  });
+
+  let html = `<p style="font-size:.75rem;color:var(--muted);margin-bottom:12px">${stats.games.length} game${stats.games.length!==1?'s':''} recorded</p>`;
+
+  const sorted = [...PLAYERS].sort((a,b) => a.firstName.localeCompare(b.firstName));
+  sorted.forEach(p => {
+    const t = totals[p.id];
+    if (!t.games) return;
+    html += `<div class="psc">
+      <div class="psc-header">
+        <span class="psc-name">${p.name}</span>
+        <span class="psc-badge" style="background:rgba(26,122,60,.08);color:var(--green);border:1px solid rgba(26,122,60,.2)">${t.games} game${t.games!==1?'s':''}</span>
+      </div>
+      <div class="psc-stats">
+        <div class="psc-stat"><div class="psc-stat-num stat-gk">${t.gk}</div><div class="psc-stat-label">🧤 GK</div></div>
+        <div class="psc-stat"><div class="psc-stat-num stat-fwd">${t.fwd}</div><div class="psc-stat-label">⚡ Fwd</div></div>
+        <div class="psc-stat"><div class="psc-stat-num stat-def">${t.def}</div><div class="psc-stat-label">🛡 Def</div></div>
+        <div class="psc-stat"><div class="psc-stat-num stat-out">${t.subs}</div><div class="psc-stat-label">🔄 Subs</div></div>
+      </div>
+    </div>`;
+  });
+
+  // Game history
+  html += `<div style="margin-top:16px;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--muted);margin-bottom:8px">Game History</div>`;
+  stats.games.forEach(g => {
+    const names = (g.presentIds||[]).map(pid => { const p=PLAYERS.find(x=>x.id===pid); return p?p.firstName:pid; }).join(', ');
+    html += `<div class="game-hist-item">
+      <div class="game-hist-date">${g.dateFormatted||g.date}</div>
+      <div class="game-hist-players">${names||'—'}</div>
+    </div>`;
+  });
+
+  const cfg = loadGhConfig();
+  const syncNote = cfg && cfg.token
+    ? `<p style="font-size:.68rem;color:var(--muted);text-align:center;margin-top:8px">✓ Synced from GitHub</p>`
+    : `<p style="font-size:.68rem;color:var(--muted);text-align:center;margin-top:8px">Stored locally on this device</p>`;
+  html += syncNote;
+
+  html += `<button onclick="clearHistoryStandalone()" style="width:100%;background:transparent;border:1px solid var(--line);color:var(--muted);padding:8px;border-radius:8px;font-size:.72rem;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:8px">🗑 Clear Season Stats</button>`;
+  return html;
+}
+
+async function clearHistoryStandalone() {
+  const cfg = loadGhConfig();
+  if (!confirm('Clear all season stats? This cannot be undone.')) return;
+  const empty = { games: [] };
+  if (cfg && cfg.token) {
+    try {
+      const { sha } = await ghReadStats(cfg);
+      await ghWriteStats(cfg, empty, sha);
+      saveStatsLocal(empty);
+      showToast('Season stats cleared from GitHub');
+    } catch(e) { showToast(`✗ ${e.message}`); return; }
+  } else {
+    saveStatsLocal(empty);
+    showToast('Season stats cleared');
+  }
+  document.getElementById('season-screen-content').innerHTML = buildSeasonSummaryStandalone();
+}
+
 // ── INIT ──
 document.getElementById('game-date').value = getTodayStr();
 updateGhBar();
+updateRestrictBar();
 renderAttendance();
 
-// If GitHub is configured, silently sync stats on load
+// Always sync stats.json from GitHub on load — public read, no auth needed
 (async () => {
-  const cfg = loadGhConfig();
-  if (!cfg || !cfg.token) return;
   try {
-    const { stats } = await ghReadStats(cfg);
-    saveStatsLocal(stats);
-  } catch(e) { /* silent fail — use local cache */ }
+    const cfg = loadGhConfig();
+    if (cfg && cfg.token) {
+      // Authenticated — use API (needed for private repos)
+      const { stats } = await ghReadStats(cfg);
+      saveStatsLocal(stats);
+    } else {
+      // Raw public URL — works on GitHub Pages
+      const res = await fetch(PUBLIC_STATS_URL + '?t=' + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        saveStatsLocal(data);
+      }
+    }
+  } catch(e) { /* silent — use local cache if fetch fails */ }
 })();
 </script>
+
 </body>
 </html>
