@@ -1102,31 +1102,85 @@ function handlePlayerRowClick(row) {
 }
 
 function performSwap(halfId, rowA, rowB) {
-  const clsA = [...rowA.classList].find(c=>['fwd','def','sub','out'].includes(c));
-  const clsB = [...rowB.classList].find(c=>['fwd','def','sub','out'].includes(c));
   const pidA = rowA.dataset.pid, pidB = rowB.dataset.pid;
-  const badgeA = document.getElementById(`badge-${halfId}-${pidA}`);
-  const badgeB = document.getElementById(`badge-${halfId}-${pidB}`);
-  const labelA = badgeA.textContent, labelB = badgeB.textContent;
-  const pbA = [...badgeA.classList].find(c=>c.startsWith('pb-'));
-  const pbB = [...badgeB.classList].find(c=>c.startsWith('pb-'));
   const roleA = rowA.dataset.role, roleB = rowB.dataset.role;
-
-  rowA.classList.remove(clsA); rowA.classList.add(clsB);
-  rowB.classList.remove(clsB); rowB.classList.add(clsA);
-  badgeA.textContent = labelB; badgeA.classList.remove(pbA); badgeA.classList.add(pbB);
-  badgeB.textContent = labelA; badgeB.classList.remove(pbB); badgeB.classList.add(pbA);
-  rowA.dataset.role = roleB; rowB.dataset.role = roleA;
-
-  // Store override in quarterState
+  const nameA = rowA.querySelector('.player-name').textContent;
+  const nameB = rowB.querySelector('.player-name').textContent;
   const qn = parseInt(rowA.dataset.qn);
   const hk = rowA.dataset.halfkey;
+
+  // Store override — swap roles between the two players
   if (!quarterState[qn]) quarterState[qn] = {};
   if (!quarterState[qn][hk]) quarterState[qn][hk] = {};
-  quarterState[qn][hk][pidA] = roleB;
-  quarterState[qn][hk][pidB] = roleA;
+  quarterState[qn][hk][pidA] = roleB === 'bench' ? 'bench' : roleB;
+  quarterState[qn][hk][pidB] = roleA === 'bench' ? 'bench' : roleA;
 
-  showToast(`⇄ ${rowA.querySelector('.player-name').textContent} ↔ ${rowB.querySelector('.player-name').textContent}`);
+  // Rebuild the entire quarter panel so names physically move to correct buckets
+  // and halftime sub panel updates accordingly
+  rebuildQuarterPanel(qn);
+
+  showToast(`⇄ ${nameA} ↔ ${nameB}`);
+}
+
+// Build a patched quarter data object that applies all quarterState overrides
+function buildPatchedQd(qd) {
+  const qn = qd.q;
+  const overrides = {};
+  if (quarterState[qn]) {
+    ['h1','h2'].forEach(hk => {
+      if (quarterState[qn][hk]) Object.assign(overrides, quarterState[qn][hk]);
+    });
+  }
+  if (Object.keys(overrides).length === 0) return qd;
+
+  // Deep copy
+  const patched = JSON.parse(JSON.stringify(qd));
+  const present = PLAYERS.filter(p => attendance[p.id]);
+
+  // For each half, reassign players based on overrides
+  ['half1','half2'].forEach((halfKey, hi) => {
+    const hk = hi === 0 ? 'h1' : 'h2';
+    const halfOverrides = quarterState[qn]?.[hk] || {};
+    if (Object.keys(halfOverrides).length === 0) return;
+
+    const half = patched[halfKey];
+
+    // Collect all non-goalie players for this half
+    const allPlayers = [
+      ...half.fwds.map(p => ({...p, origRole:'fwd'})),
+      ...half.defs.map(p => ({...p, origRole:'def'})),
+      ...(half.bench||[]).map(p => ({...p, origRole:'bench'})),
+      ...(half.off||[]).map(p => ({...p, origRole:'bench'})),
+    ];
+
+    // Apply overrides
+    const newFwds = [], newDefs = [], newBench = [], newOff = [];
+    allPlayers.forEach(p => {
+      const role = halfOverrides[p.id] || p.origRole;
+      if (role === 'fwd') newFwds.push(p);
+      else if (role === 'def') newDefs.push(p);
+      else {
+        // bench/off: put in off for h2, bench for h1
+        if (halfKey === 'half2') newOff.push(p);
+        else newBench.push(p);
+      }
+    });
+
+    half.fwds = newFwds;
+    half.defs = newDefs;
+    if (halfKey === 'half1') half.bench = newBench;
+    else half.off = newOff;
+
+    // Update subIn/comingOff to reflect who is now on bench
+    if (halfKey === 'half1') {
+      patched.bench = newBench;
+      patched.subIn = newBench;
+    } else {
+      patched.comingOff = newOff;
+    }
+  });
+
+  return patched;
 }
 
 // ═══════════════════════════════════════════
@@ -1623,37 +1677,61 @@ function rebuildQuarterPanel(qn) {
   const panel = document.getElementById(`panel-${idx}`);
   if (!panel) return;
 
-  // Apply goalie override to gameData for this quarter before rebuilding
   const qd = gameData.quarters.find(q => q.q === qn);
-  const override = goalieOverrides[qn];
+  let patched = buildPatchedQd(qd); // apply position overrides
 
-  if (override) {
-    // Temporarily patch qd for rendering — swap new goalie in, put displaced in their slot
-    const patched = JSON.parse(JSON.stringify(qd));
-    patched.goalie = override.newGoalie;
+  // Apply goalie override on top
+  const gkOverride = goalieOverrides[qn];
+  if (gkOverride) {
+    patched = JSON.parse(JSON.stringify(patched));
+    patched.goalie = gkOverride.newGoalie;
 
-    // Remove new goalie from field lists and add displaced goalie in their place
+    // Remove new goalie from all field lists
     ['half1','half2'].forEach(half => {
       ['fwds','defs'].forEach(pos => {
-        patched[half][pos] = patched[half][pos].filter(p => p.id !== override.newGoalie.id);
+        patched[half][pos] = patched[half][pos].filter(p => p.id !== gkOverride.newGoalie.id);
       });
-      if (patched[half].bench) patched[half].bench = patched[half].bench.filter(p => p.id !== override.newGoalie.id);
-      if (patched[half].off)   patched[half].off   = patched[half].off.filter(p => p.id !== override.newGoalie.id);
+      if (patched[half].bench) patched[half].bench = patched[half].bench.filter(p => p.id !== gkOverride.newGoalie.id);
+      if (patched[half].off)   patched[half].off   = patched[half].off.filter(p => p.id !== gkOverride.newGoalie.id);
     });
 
-    // Remove original goalie from nowhere (they weren't in field lists) — add displaced into correct position
-    if (override.displacedRole === 'fwd') {
-      patched.half1.fwds.push(override.displaced);
-      patched.half2.fwds.push(override.displaced);
+    // Add displaced goalie into their original field role
+    if (gkOverride.displacedRole === 'fwd') {
+      patched.half1.fwds.push(gkOverride.displaced);
+      patched.half2.fwds.push(gkOverride.displaced);
     } else {
-      patched.half1.defs.push(override.displaced);
-      patched.half2.defs.push(override.displaced);
+      patched.half1.defs.push(gkOverride.displaced);
+      patched.half2.defs.push(gkOverride.displaced);
     }
-
-    panel.innerHTML = buildQuarterHTML(patched, idx);
-  } else {
-    panel.innerHTML = buildQuarterHTML(qd, idx);
   }
+
+  // Preserve done state and progress before rebuilding
+  const wasDone = document.getElementById(`qdone-${qn}`)?.classList.contains('done');
+  const swapsDone = [...panel.querySelectorAll('.sub-swap.swap-done')].map(s => {
+    const inName = s.querySelector('.swap-in')?.textContent?.replace('↑ ','');
+    return inName;
+  });
+
+  panel.innerHTML = buildQuarterHTML(patched, idx);
+
+  // Restore done state
+  if (wasDone) {
+    const btn = document.getElementById(`qdone-${qn}`);
+    if (btn) { btn.classList.add('done'); btn.textContent = `✓ Q${qn} Complete!`; }
+    panel.querySelectorAll('.half-section').forEach(h => h.classList.add('completed'));
+    document.querySelectorAll('.qtab')[idx]?.classList.add('completed');
+  }
+
+  // Restore confirmed subs
+  swapsDone.forEach(name => {
+    panel.querySelectorAll('.sub-swap').forEach(s => {
+      if (s.querySelector('.swap-in')?.textContent?.replace('↑ ','') === name) {
+        s.classList.add('swap-done');
+      }
+    });
+  });
+
+  updateProgress(qn);
 }
 
 // ── INIT ──
