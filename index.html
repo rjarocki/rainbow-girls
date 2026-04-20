@@ -1685,25 +1685,45 @@ function rebuildQuarterPanel(qn) {
   if (gkOverride) {
     patched = JSON.parse(JSON.stringify(patched));
     patched.goalie = gkOverride.newGoalie;
+    const newGkId = gkOverride.newGoalie.id;
+    const displaced = gkOverride.displaced;
 
-    // Remove new goalie from all field lists
-    ['half1','half2'].forEach(half => {
-      ['fwds','defs'].forEach(pos => {
-        patched[half][pos] = patched[half][pos].filter(p => p.id !== gkOverride.newGoalie.id);
+    // Per-half swap: wherever new goalie was in this half, put displaced there.
+    // This keeps the field count at 6 and preserves formation/subs structure.
+    ['half1','half2'].forEach(halfKey => {
+      const half = patched[halfKey];
+      const buckets = ['fwds','defs','bench','off'];
+      let foundBucket = null;
+      for (const b of buckets) {
+        if (half[b] && half[b].find(p => p.id === newGkId)) { foundBucket = b; break; }
+      }
+      buckets.forEach(b => {
+        if (half[b]) half[b] = half[b].filter(p => p.id !== newGkId);
       });
-      if (patched[half].bench) patched[half].bench = patched[half].bench.filter(p => p.id !== gkOverride.newGoalie.id);
-      if (patched[half].off)   patched[half].off   = patched[half].off.filter(p => p.id !== gkOverride.newGoalie.id);
+      // Fallback to 'fwds' only if new goalie wasn't found in this half (shouldn't happen)
+      half[foundBucket || 'fwds'] = half[foundBucket || 'fwds'] || [];
+      half[foundBucket || 'fwds'].push(displaced);
     });
 
-    // Add displaced goalie into their original field role
-    if (gkOverride.displacedRole === 'fwd') {
-      patched.half1.fwds.push(gkOverride.displaced);
-      patched.half2.fwds.push(gkOverride.displaced);
-    } else {
-      patched.half1.defs.push(gkOverride.displaced);
-      patched.half2.defs.push(gkOverride.displaced);
-    }
+    // Sync quarter-level bench/subIn/comingOff to the swapped half data so the
+    // halftime subs panel reflects the new names.
+    patched.bench     = patched.half1.bench ? [...patched.half1.bench] : [];
+    patched.subIn     = [...patched.bench];
+    patched.comingOff = patched.half2.off   ? [...patched.half2.off]   : [];
   }
+
+  // Formation sanity check — warns if field count ever deviates from expected
+  const attCount = PLAYERS.filter(p => attendance[p.id]).length;
+  const expectedField = Math.min(6, Math.max(0, attCount - 1));
+  ['half1','half2'].forEach(halfKey => {
+    const h = patched[halfKey];
+    const fieldCount = (h.fwds?.length || 0) + (h.defs?.length || 0);
+    if (fieldCount !== expectedField) {
+      const msg = `⚠ Q${qn} ${halfKey}: ${fieldCount + 1} on field (expected ${expectedField + 1})`;
+      console.warn(msg, patched);
+      showToast(msg);
+    }
+  });
 
   // Preserve done state and progress before rebuilding
   const wasDone = document.getElementById(`qdone-${qn}`)?.classList.contains('done');
