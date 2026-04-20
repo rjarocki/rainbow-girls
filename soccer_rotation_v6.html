@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚽ The Rainbow Girls</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green:#1a7a3c; --lime:#7ec845; --dark:#ffffff; --card:#f5f5f5;
+  --card2:#ebebeb; --line:#dddddd; --text:#1a1a1a; --muted:#666666;
+  --gold:#f0c040; --red:#e04040; --blue:#4a9fe0; --orange:#e08a30; --purple:#a070e0;
+}
+html { scroll-behavior:smooth; }
+body { background:var(--dark); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; padding-bottom:60px; -webkit-tap-highlight-color:transparent; }
+
+/* ── HEADER ── */
+header { background:linear-gradient(180deg,#4fc3f7 0%,#81d4fa 40%,#b3e5fc 100%); border-bottom:3px solid transparent; border-image: linear-gradient(90deg,#ff4e4e,#ff9a00,#ffe600,#4cce4c,#3ab5e6,#a64dd4) 1; padding:20px 20px 16px; text-align:center; position:sticky; top:0; z-index:100; overflow:hidden; }
+header::before { content:''; position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 60px 30px at 10% 30%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.7) 40%, transparent 70%),
+    radial-gradient(ellipse 40px 22px at 7% 38%, rgba(255,255,255,.85) 0%, transparent 70%),
+    radial-gradient(ellipse 35px 20px at 15% 25%, rgba(255,255,255,.8) 0%, transparent 70%),
+    radial-gradient(ellipse 80px 35px at 75% 20%, rgba(255,255,255,.9) 0%, rgba(255,255,255,.7) 40%, transparent 70%),
+    radial-gradient(ellipse 55px 25px at 70% 30%, rgba(255,255,255,.85) 0%, transparent 70%),
+    radial-gradient(ellipse 45px 22px at 82% 15%, rgba(255,255,255,.8) 0%, transparent 70%),
+    radial-gradient(ellipse 50px 25px at 45% 65%, rgba(255,255,255,.7) 0%, rgba(255,255,255,.5) 40%, transparent 70%),
+    radial-gradient(ellipse 35px 18px at 40% 75%, rgba(255,255,255,.65) 0%, transparent 70%),
+    radial-gradient(ellipse 30px 16px at 52% 60%, rgba(255,255,255,.6) 0%, transparent 70%);
+}
+header h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(2rem,7vw,3.4rem); letter-spacing:.06em; background:linear-gradient(90deg,#cc0000,#cc2288,#9900cc,#6600cc,#440099); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 1px 3px rgba(0,0,0,.3)); position:relative; }
+.header-sub { font-size:.72rem; color:#cc0000; letter-spacing:.14em; text-transform:uppercase; margin-top:2px; position:relative; font-weight:600; text-shadow:0 1px 2px rgba(255,255,255,.4); }
+
+/* ── SCREENS ── */
+.screen { display:none; }
+.screen.active { display:block; }
+
+/* ══════════ ATTENDANCE SCREEN ══════════ */
+#screen-attendance { padding:16px; }
+.att-title { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:.06em; color:var(--lime); margin-bottom:4px; }
+.att-subtitle { font-size:.78rem; color:var(--muted); margin-bottom:16px; }
+.att-count-bar { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.att-count-num { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--lime); line-height:1; }
+.att-count-label { font-size:.72rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+.att-count-right { text-align:right; }
+.bench-preview { font-size:.75rem; color:var(--muted); }
+.bench-preview span { color:var(--lime); font-weight:600; }
+
+.att-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+.att-player { background:var(--card); border:2px solid var(--line); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; cursor:pointer; transition:all .15s; user-select:none; -webkit-user-select:none; }
+.att-player:active { transform:scale(.97); }
+.att-player.present { border-color:var(--lime); background:rgba(126,200,69,.08); }
+.att-player.absent  { border-color:var(--red); background:rgba(224,64,64,.05); opacity:.6; }
+.att-avatar { width:36px; height:36px; border-radius:50%; background:var(--card2); border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:700; color:var(--muted); flex-shrink:0; transition:all .15s; }
+.att-player.present .att-avatar { border-color:var(--lime); color:var(--lime); background:rgba(126,200,69,.1); }
+.att-player.absent  .att-avatar { border-color:var(--red); color:var(--red); }
+.att-info { flex:1; min-width:0; }
+.att-name { font-size:.82rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.att-role { font-size:.62rem; color:var(--muted); margin-top:2px; }
+.att-player.present .att-role { color:rgba(126,200,69,.7); }
+.att-check { font-size:1rem; flex-shrink:0; }
+
+.att-all-btns { display:flex; gap:8px; margin-bottom:16px; }
+.att-btn-sm { flex:1; background:var(--card); border:1px solid var(--line); color:var(--muted); padding:8px; border-radius:8px; font-size:.75rem; font-family:'DM Sans',sans-serif; cursor:pointer; text-transform:uppercase; letter-spacing:.06em; transition:all .15s; }
+.att-btn-sm:hover { border-color:var(--lime); color:var(--lime); }
+
+.start-btn { width:100%; background:linear-gradient(135deg,var(--green),#2a8a4a); border:none; color:white; padding:16px; border-radius:12px; font-family:'Bebas Neue',sans-serif; font-size:1.4rem; letter-spacing:.1em; cursor:pointer; transition:all .2s; box-shadow:0 4px 20px rgba(26,122,60,.4); }
+.start-btn:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(26,122,60,.5); }
+.start-btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+.start-btn-sub { text-align:center; font-size:.72rem; color:var(--muted); margin-top:8px; }
+
+/* ══════════ GAME SCREEN ══════════ */
+.quarter-tabs { display:flex; border-bottom:2px solid var(--line); background:#f0f0f0; position:sticky; top:73px; z-index:90; overflow-x:auto; scrollbar-width:none; }
+.quarter-tabs::-webkit-scrollbar { display:none; }
+.qtab { flex:1; min-width:60px; padding:10px 6px; text-align:center; cursor:pointer; border-bottom:3px solid transparent; transition:all .15s; user-select:none; }
+.qtab-num { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; color:var(--muted); line-height:1; transition:color .15s; }
+.qtab-label { font-size:.58rem; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-top:1px; }
+.qtab.active { border-bottom-color:var(--lime); }
+.qtab.active .qtab-num, .qtab.active .qtab-label { color:var(--lime); }
+.qtab-done-dot { width:6px; height:6px; background:var(--lime); border-radius:50%; margin:3px auto 0; display:none; }
+.qtab.completed .qtab-done-dot { display:block; }
+
+.quarter-panel { display:none; padding:14px 14px 0; }
+.quarter-panel.active { display:block; }
+
+/* goalie card */
+.goalie-card { background:linear-gradient(135deg,rgba(240,192,64,.12),rgba(240,192,64,.05)); border:1px solid rgba(240,192,64,.3); border-radius:12px; padding:11px 14px; display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.goalie-icon { font-size:1.3rem; }
+.goalie-info { flex:1; }
+.goalie-name { font-size:.95rem; font-weight:600; color:var(--gold); }
+.goalie-sub  { font-size:.68rem; color:rgba(240,192,64,.6); text-transform:uppercase; letter-spacing:.08em; }
+.full-q-badge { font-size:.62rem; font-weight:700; background:rgba(240,192,64,.15); color:var(--gold); border:1px solid rgba(240,192,64,.3); padding:3px 8px; border-radius:999px; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap; }
+
+/* half section */
+.half-section { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-bottom:10px; transition:opacity .2s; }
+.half-section.completed { opacity:.5; }
+.half-header { background:rgba(126,200,69,.07); border-bottom:1px solid var(--line); padding:7px 12px; display:flex; align-items:center; justify-content:space-between; }
+.half-title { font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--lime); }
+.half-done-btn { font-size:.63rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--muted); cursor:pointer; transition:all .15s; }
+.half-done-btn.done { background:rgba(126,200,69,.1); border-color:var(--lime); color:var(--lime); }
+
+/* no bench notice */
+.no-bench-notice { background:rgba(240,192,64,.07); border:1px solid rgba(240,192,64,.2); border-radius:8px; padding:9px 12px; font-size:.78rem; color:rgba(240,192,64,.8); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+
+/* pos label */
+.pos-label { padding:4px 12px 3px; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); background:rgba(255,255,255,.02); border-bottom:1px solid rgba(255,255,255,.04); border-top:1px solid rgba(255,255,255,.04); }
+
+/* player row */
+.player-row { display:flex; align-items:center; padding:7px 12px; gap:9px; font-size:.82rem; border-bottom:1px solid rgba(255,255,255,.04); }
+.player-row:last-child { border-bottom:none; }
+
+.player-row.fwd { color:var(--orange); }
+.player-row.def { color:var(--blue); }
+.player-row.sub { color:var(--purple); font-weight:600; }
+.player-row.out { color:var(--red); opacity:.65; }
+
+
+.player-name { flex:1; }
+.pos-badge { font-size:.6rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; padding:2px 6px; border-radius:999px; flex-shrink:0; white-space:nowrap; }
+.pb-fwd { background:rgba(224,138,48,.15); color:var(--orange); border:1px solid rgba(224,138,48,.3); }
+.pb-def { background:rgba(74,159,224,.12); color:var(--blue); border:1px solid rgba(74,159,224,.25); }
+.pb-sub { background:rgba(160,112,224,.15); color:var(--purple); border:1px solid rgba(160,112,224,.3); }
+.pb-out { background:rgba(224,64,64,.1); color:var(--red); border:1px solid rgba(224,64,64,.25); }
+.pb-gk  { background:rgba(240,192,64,.15); color:var(--gold); border:1px solid rgba(240,192,64,.3); }
+
+/* sub panel */
+.sub-panel { margin:0 10px 10px; border-radius:10px; background:rgba(160,112,224,.07); border:1px solid rgba(160,112,224,.2); overflow:hidden; }
+.sub-panel-title { padding:6px 12px 4px; font-size:.6rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--purple); border-bottom:1px solid rgba(160,112,224,.15); background:rgba(160,112,224,.05); }
+.sub-swap { display:flex; align-items:center; padding:7px 12px; gap:8px; border-bottom:1px solid rgba(160,112,224,.08); font-size:.8rem; cursor:pointer; transition:background .12s; }
+.sub-swap:last-child { border-bottom:none; }
+.sub-swap:active { background:rgba(160,112,224,.1); }
+.sub-swap.swap-done { opacity:.4; text-decoration:line-through; }
+.swap-check { width:18px; height:18px; flex-shrink:0; border-radius:50%; border:2px solid rgba(160,112,224,.4); background:transparent; position:relative; transition:all .15s; }
+.sub-swap.swap-done .swap-check { background:var(--purple); border-color:var(--purple); }
+.sub-swap.swap-done .swap-check::after { content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:.6rem; font-weight:700; color:white; }
+.swap-in { color:var(--purple); font-weight:600; flex:1; }
+.swap-arrow { color:var(--lime); }
+.swap-out { color:var(--muted); flex:1; text-align:right; }
+
+/* no sub notice */
+.no-sub-notice { margin:0 10px 10px; border-radius:10px; background:rgba(126,200,69,.05); border:1px solid rgba(126,200,69,.15); padding:8px 12px; font-size:.75rem; color:var(--muted); }
+
+/* progress */
+.progress-wrap { padding:0 14px 14px; }
+.progress-label { display:flex; justify-content:space-between; font-size:.68rem; color:var(--muted); margin-bottom:5px; }
+.progress-bar { height:4px; background:var(--line); border-radius:999px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--lime)); border-radius:999px; transition:width .3s ease; width:0%; }
+
+.reset-wrap { text-align:center; padding:10px 14px 4px; }
+.reset-btn { background:transparent; border:1px solid var(--line); color:var(--muted); padding:7px 18px; border-radius:999px; font-size:.72rem; font-family:'DM Sans',sans-serif; cursor:pointer; letter-spacing:.06em; text-transform:uppercase; transition:all .15s; }
+.reset-btn:hover { border-color:var(--red); color:var(--red); }
+
+/* edit attendance btn */
+.edit-att-wrap { padding:16px 14px 4px; text-align:center; }
+.edit-att-btn { background:transparent; border:1px solid var(--line); color:var(--muted); padding:8px 18px; border-radius:999px; font-size:.72rem; font-family:'DM Sans',sans-serif; cursor:pointer; letter-spacing:.06em; text-transform:uppercase; transition:all .15s; }
+.edit-att-btn:hover { border-color:var(--lime); color:var(--lime); }
+
+/* summary */
+.summary-section { padding:14px; }
+.summary-title { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:.06em; color:var(--lime); margin-bottom:10px; }
+.psc { background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:8px; }
+.psc-header { display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:1px solid var(--line); }
+.psc-name { font-size:.85rem; font-weight:600; flex:1; }
+.psc-badge { font-size:.68rem; font-weight:700; padding:2px 8px; border-radius:999px; }
+.psc-segs { display:flex; gap:3px; padding:7px 12px; flex-wrap:wrap; }
+.seg { width:28px; height:22px; border-radius:5px; font-size:.6rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-direction:column; }
+.seg span { font-size:.48rem; color:var(--muted); margin-top:1px; }
+.seg-fwd { background:rgba(224,138,48,.15); color:var(--orange); }
+.seg-def { background:rgba(74,159,224,.12); color:var(--blue); }
+.seg-gk  { background:rgba(240,192,64,.15); color:var(--gold); }
+.seg-sit { background:rgba(224,64,64,.1); color:var(--red); }
+.seg-sub { background:rgba(160,112,224,.15); color:var(--purple); }
+.seg-abs { background:rgba(100,100,100,.1); color:#555; }
+
+/* toast */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--card2); border:1px solid var(--lime); color:var(--lime); padding:9px 18px; border-radius:999px; font-size:.78rem; font-weight:600; letter-spacing:.06em; z-index:999; transition:transform .3s cubic-bezier(.34,1.56,.64,1); white-space:nowrap; pointer-events:none; }
+.toast.show { transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<header>
+  <h1><span style="-webkit-text-fill-color:initial;font-style:normal;">🌈</span> The Rainbow Girls</h1>
+  <div class="header-sub" id="header-sub-static">Game Day Rotation</div>
+  <div class="header-sub" id="header-sub" style="margin-top:2px">Mark attendance to begin</div>
+</header>
+
+<!-- ════════ ATTENDANCE SCREEN ════════ -->
+<div class="screen active" id="screen-attendance">
+  <div id="att-content">
+    <div style="padding:14px 14px 0">
+      <div class="att-title">Who's Here Today?</div>
+      <div class="att-subtitle">Tap each girl to mark present or absent</div>
+
+      <div class="att-count-bar">
+        <div>
+          <div class="att-count-num" id="att-count">10</div>
+          <div class="att-count-label">Present</div>
+        </div>
+        <div class="att-count-right">
+          <div class="bench-preview" id="bench-preview">3 on bench per quarter · 3 subs at half</div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:3px" id="att-warning"></div>
+        </div>
+      </div>
+
+      <div class="att-all-btns">
+        <button class="att-btn-sm" onclick="setAllAttendance(true)">✓ All Present</button>
+        <button class="att-btn-sm" onclick="setAllAttendance(false)">✗ All Absent</button>
+      </div>
+
+      <div class="att-grid" id="att-grid"></div>
+
+      <button class="start-btn" id="start-btn" onclick="startGame()">Generate Rotation ▶</button>
+      <div class="start-btn-sub" id="start-btn-sub">10 girls · 3 bench per quarter</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ GAME SCREEN ════════ -->
+<div class="screen" id="screen-game">
+  <div class="quarter-tabs" id="quarter-tabs"></div>
+  <div id="quarter-panels"></div>
+  <div class="edit-att-wrap">
+    <button class="edit-att-btn" onclick="editAttendance()">← Edit Attendance</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+const PLAYERS = [
+  { id:'lyla-kay', name:'Lyla Kay',             firstName:'Lyla',     initials:'LK', goalieOrder:1,  prevGoalie:false },
+  { id:'kalliopi', name:'Kalliopi Diamantakis', firstName:'Kalliopi', initials:'KD', goalieOrder:2,  prevGoalie:false },
+  { id:'riley',    name:'Riley Meditz',         firstName:'Riley',    initials:'RM', goalieOrder:3,  prevGoalie:false },
+  { id:'skylar',   name:'Skylar McFadzen',      firstName:'Skylar',   initials:'SM', goalieOrder:4,  prevGoalie:false },
+  { id:'mackayla', name:'Mackayla Dellaposta',  firstName:'Mackayla', initials:'MD', goalieOrder:99, prevGoalie:false },
+  { id:'bronagh',  name:'Bronagh Lyons',        firstName:'Bronagh',  initials:'BL', goalieOrder:99, prevGoalie:false },
+  { id:'penny',    name:'Penny Jarocki',        firstName:'Penny',    initials:'PJ', goalieOrder:99, prevGoalie:true  },
+  { id:'lyla-p',   name:'Lyla Pesinkowski',     firstName:'Lyla',     initials:'LP', goalieOrder:99, prevGoalie:true  },
+  { id:'olivia',   name:'Olivia Freire',        firstName:'Olivia',   initials:'OF', goalieOrder:99, prevGoalie:true  },
+  { id:'giavana',  name:'Giavana Clemente',     firstName:'Giavana',  initials:'GC', goalieOrder:99, prevGoalie:true  },
+];
+
+// Default: all present except Bronagh (per game scenario)
+let attendance = {};
+PLAYERS.forEach(p => attendance[p.id] = p.id !== 'bronagh');
+
+let gameData = null; // generated rotation
+
+// ══════════════════════════════════════════
+//  ATTENDANCE SCREEN
+// ══════════════════════════════════════════
+function renderAttendance() {
+  const grid = document.getElementById('att-grid');
+  grid.innerHTML = '';
+  PLAYERS.forEach(p => {
+    const present = attendance[p.id];
+    const div = document.createElement('div');
+    div.className = `att-player ${present ? 'present' : 'absent'}`;
+    div.onclick = () => toggleAttendance(p.id);
+    div.innerHTML = `
+      <div class="att-avatar">${p.initials}</div>
+      <div class="att-info">
+        <div class="att-name">${p.name}</div>
+        <div class="att-role">${p.firstName + " " + p.initials[1] + "."}</div>
+      </div>
+      <div class="att-check">${present ? '✓' : '✗'}</div>`;
+    grid.appendChild(div);
+  });
+  updateAttCount();
+}
+
+function toggleAttendance(id) {
+  attendance[id] = !attendance[id];
+  renderAttendance();
+}
+
+function setAllAttendance(val) {
+  PLAYERS.forEach(p => attendance[p.id] = val);
+  renderAttendance();
+}
+
+function updateAttCount() {
+  const present = PLAYERS.filter(p => attendance[p.id]).length;
+  document.getElementById('att-count').textContent = present;
+  const btn = document.getElementById('start-btn');
+  const sub = document.getElementById('start-btn-sub');
+  const warn = document.getElementById('att-warning');
+  const bp = document.getElementById('bench-preview');
+
+  btn.disabled = present < 1;
+  warn.textContent = '';
+
+  if (present === 0) {
+    bp.innerHTML = `<span style="color:var(--red)">No players marked present</span>`;
+    sub.textContent = 'Mark at least one player present';
+  } else if (present <= 7) {
+    bp.innerHTML = `<span>No bench</span> — all ${present} girls play the full quarter`;
+    sub.textContent = `${present} girls · everyone plays · no subs`;
+  } else {
+    const bench = present - 7;
+    bp.innerHTML = `<span>${bench}</span> on bench per quarter · <span>${bench}</span> sub${bench !== 1 ? 's' : ''} at half`;
+    sub.textContent = `${present} girls · ${bench} bench per quarter`;
+  }
+}
+
+// ══════════════════════════════════════════
+//  ROTATION GENERATOR
+// ══════════════════════════════════════════
+function generateRotation(presentPlayers) {
+  const n = presentPlayers.length;
+  // If 7 or fewer, no bench. If more than 7, bench = n - 7.
+  const fieldSize = Math.min(n, 7); // max 7 on field (incl goalie)
+  const benchPerQ = Math.max(0, n - 7);
+
+  // ── Goalie assignment: ordered by goalieOrder, skip absent, cycle if needed
+  const goaliePool = [...presentPlayers].sort((a,b) => {
+    if (a.goalieOrder !== b.goalieOrder) return a.goalieOrder - b.goalieOrder;
+    return (a.prevGoalie ? 1 : 0) - (b.prevGoalie ? 1 : 0);
+  });
+  const goalies = [];
+  for (let q = 0; q < 4; q++) goalies.push(goaliePool[q % goaliePool.length]);
+
+  // ── Favored players sit last when counts are EQUAL — never allowed to cause a 0/3 gap
+  const FAVORED = ['penny', 'lyla-kay'];
+
+  // ── Bench assignment
+  let benchCounts = {};
+  let halfOffCounts = {};
+  presentPlayers.forEach(p => { benchCounts[p.id] = 0; halfOffCounts[p.id] = 0; });
+
+  // Track who came off at the END of the previous quarter's 2nd half
+  // so they are never benched at the START of the next quarter (no back-to-back sits)
+  let justCameOff = new Set(); // ids who sat out the 2nd half of previous quarter
+
+  const quarters = [];
+
+  for (let q = 0; q < 4; q++) {
+    const goalie = goalies[q];
+    const available = presentPlayers.filter(p => p.id !== goalie.id);
+
+    // ── BENCH SELECTION for 1st half ──
+    // Exclude players who just came off end of last quarter (no back-to-back)
+    // UNLESS excluding them would make it impossible to fill the bench
+    // (i.e. not enough non-excluded players — then allow as last resort)
+    const nonRecentlyRested = available.filter(p => !justCameOff.has(p.id));
+    const recentlyRested    = available.filter(p =>  justCameOff.has(p.id));
+
+    // Sort function: bench count asc, then favored last as tiebreak
+    const sortForBench = (arr) => [...arr].sort((a,b) => {
+      const diff = benchCounts[a.id] - benchCounts[b.id];
+      if (diff !== 0) return diff;
+      const aFav = FAVORED.includes(a.id) ? 1 : 0;
+      const bFav = FAVORED.includes(b.id) ? 1 : 0;
+      if (aFav !== bFav) return aFav - bFav;
+      return a.id.localeCompare(b.id);
+    });
+
+    let benchThisQ = [];
+    if (benchPerQ > 0) {
+      const sortedNonRecent = sortForBench(nonRecentlyRested);
+      if (sortedNonRecent.length >= benchPerQ) {
+        // Enough non-recently-rested players — pick from them only
+        benchThisQ = sortedNonRecent.slice(0, benchPerQ);
+      } else {
+        // Not enough — take all non-recently-rested first, then fill from recently rested
+        benchThisQ = [...sortedNonRecent];
+        const stillNeeded = benchPerQ - benchThisQ.length;
+        const sortedRecent = sortForBench(recentlyRested);
+        benchThisQ = [...benchThisQ, ...sortedRecent.slice(0, stillNeeded)];
+      }
+    }
+
+    benchThisQ.forEach(p => benchCounts[p.id]++);
+    const fieldThisQ = available.filter(p => !benchThisQ.find(b => b.id === p.id));
+
+    // ── POSITION ASSIGNMENT ──
+    const fieldCount = fieldThisQ.length;
+    const fwdCount = Math.min(3, fieldCount);
+    const rotated = rotateArray(fieldThisQ, q * Math.floor(fieldCount / 2));
+    const fwds1st = rotated.slice(0, fwdCount);
+    const defs1st = rotated.slice(fwdCount);
+
+    // ── COMING OFF AT HALF ──
+    // Balance by halfOffCounts, avoid favored as tiebreak
+    // Also avoid anyone who started on bench (they're subbing IN, not coming off)
+    const comingOffCandidates = [...rotated].sort((a,b) => {
+      const diff = halfOffCounts[a.id] - halfOffCounts[b.id];
+      if (diff !== 0) return diff;
+      const aFav = FAVORED.includes(a.id) ? 1 : 0;
+      const bFav = FAVORED.includes(b.id) ? 1 : 0;
+      if (aFav !== bFav) return aFav - bFav;
+      return a.id.localeCompare(b.id);
+    });
+    const comingOff = comingOffCandidates.slice(0, benchPerQ);
+    comingOff.forEach(p => halfOffCounts[p.id]++);
+
+    // Update justCameOff for next quarter — these are the girls sitting 2nd half
+    justCameOff = new Set(comingOff.map(p => p.id));
+
+    const staying = rotated.filter(p => !comingOff.find(c => c.id === p.id));
+    const field2nd = [...staying, ...benchThisQ];
+    const rotated2nd = rotateArray(field2nd, q);
+    const fwds2nd = rotated2nd.slice(0, fwdCount);
+    const defs2nd = rotated2nd.slice(fwdCount);
+
+    quarters.push({
+      q: q + 1,
+      goalie,
+      bench: benchThisQ,
+      comingOff,
+      subIn: benchThisQ,
+      half1: { fwds: fwds1st, defs: defs1st, bench: benchThisQ },
+      half2: { fwds: fwds2nd, defs: defs2nd, off: comingOff },
+      hasBench: benchPerQ > 0,
+    });
+  }
+
+  return { quarters, benchPerQ, fieldSize, n };
+}
+
+function rotateArray(arr, n) {
+  if (!arr.length) return arr;
+  const offset = ((n % arr.length) + arr.length) % arr.length;
+  return [...arr.slice(offset), ...arr.slice(0, offset)];
+}
+
+// ══════════════════════════════════════════
+//  GAME SCREEN RENDERER
+// ══════════════════════════════════════════
+function startGame() {
+  const present = PLAYERS.filter(p => attendance[p.id]);
+  if (present.length < 1) return;
+
+  gameData = generateRotation(present);
+
+  document.getElementById('screen-attendance').classList.remove('active');
+  document.getElementById('screen-game').classList.add('active');
+
+  const n = present.length;
+  document.getElementById('header-sub').textContent = `${n} players · ${gameData.benchPerQ} bench/quarter · Tap to check off`;
+
+  renderGameScreen();
+}
+
+function renderGameScreen() {
+  const tabsEl = document.getElementById('quarter-tabs');
+  const panelsEl = document.getElementById('quarter-panels');
+  tabsEl.innerHTML = '';
+  panelsEl.innerHTML = '';
+
+  // Build tabs
+  gameData.quarters.forEach((qd, idx) => {
+    const tab = document.createElement('div');
+    tab.className = `qtab${idx === 0 ? ' active' : ''}`;
+    tab.innerHTML = `<div class="qtab-num">Q${qd.q}</div><div class="qtab-label">Quarter ${qd.q}</div><div class="qtab-done-dot"></div>`;
+    tab.onclick = () => switchTab(idx);
+    tabsEl.appendChild(tab);
+  });
+  // Summary tab
+  const sumTab = document.createElement('div');
+  sumTab.className = 'qtab';
+  sumTab.innerHTML = `<div class="qtab-num" style="font-size:.9rem;padding-top:5px">📋</div><div class="qtab-label">Summary</div><div class="qtab-done-dot"></div>`;
+  sumTab.onclick = () => switchTab(4);
+  tabsEl.appendChild(sumTab);
+
+  // Build quarter panels
+  gameData.quarters.forEach((qd, idx) => {
+    const panel = document.createElement('div');
+    panel.className = `quarter-panel${idx === 0 ? ' active' : ''}`;
+    panel.id = `panel-${idx}`;
+    panel.innerHTML = buildQuarterHTML(qd, idx);
+    panelsEl.appendChild(panel);
+  });
+
+  // Summary panel
+  const sumPanel = document.createElement('div');
+  sumPanel.className = 'quarter-panel';
+  sumPanel.id = 'panel-4';
+  sumPanel.innerHTML = buildSummaryHTML();
+  panelsEl.appendChild(sumPanel);
+}
+
+function buildQuarterHTML(qd, idx) {
+  const qn = qd.q;
+  const goalieStar = !qd.goalie.prevGoalie ? '⭐ 1st time!' : '';
+  let html = '';
+
+  // Goalie card
+  html += `<div class="goalie-card">
+    <div class="goalie-icon">🧤</div>
+    <div class="goalie-info">
+      <div class="goalie-name">${qd.goalie.name}</div>
+      <div class="goalie-sub">Goalkeeper ${goalieStar}</div>
+    </div>
+    <span class="full-q-badge">Full Q</span>
+  </div>`;
+
+  if (!qd.hasBench) {
+    // No bench — everyone plays full quarter, no subs
+    const fieldMsg = gameData.n < 7 ? `${gameData.n} players today — fielding all of them, no bench` : `${gameData.n} players today — everyone plays the full quarter, no subs needed!`;
+    html += `<div class="no-bench-notice">⚡ ${fieldMsg}</div>`;
+    html += `<div class="half-section" id="q${qn}-full">
+      <div class="half-header">
+        <div class="half-title">▶ Full Quarter — All On Field</div>
+        <button class="half-done-btn" onclick="markHalfDone('q${qn}-full',this)">Mark Done</button>
+      </div>
+      <div class="pos-label">⚡ Forwards</div>`;
+    qd.half1.fwds.forEach(p => {
+      html += playerRowHTML(p, 'fwd', 'Fwd');
+    });
+    html += `<div class="pos-label">🛡 Defense</div>`;
+    qd.half1.defs.forEach(p => {
+      html += playerRowHTML(p, 'def', 'Def');
+    });
+    html += `</div>`;
+    html += `<div class="no-sub-notice">✓ No substitutions needed this quarter</div>`;
+  } else {
+    // 1st half
+    html += `<div class="half-section" id="q${qn}-h1">
+      <div class="half-header">
+        <div class="half-title">▶ 1st Half — Starting ${7 - (qd.hasBench ? 0 : 0)}</div>
+        <button class="half-done-btn" onclick="markHalfDone('q${qn}-h1',this)">Mark Done</button>
+      </div>
+      <div class="pos-label">⚡ Forwards</div>`;
+    qd.half1.fwds.forEach(p => html += playerRowHTML(p, 'fwd', 'Fwd'));
+    html += `<div class="pos-label">🛡 Defense</div>`;
+    qd.half1.defs.forEach(p => html += playerRowHTML(p, 'def', 'Def'));
+    html += `<div class="pos-label">🪑 Bench — Sub In at Half</div>`;
+    qd.half1.bench.forEach(p => html += playerRowHTML(p, 'out', 'Bench'));
+    html += `</div>`;
+
+    // Sub panel
+    html += `<div class="sub-panel"><div class="sub-panel-title">⟳ Half-Time Subs — tap each to confirm</div>`;
+    qd.comingOff.forEach((off, i) => {
+      const inP = qd.subIn[i];
+      html += `<div class="sub-swap" onclick="toggleSwap(this)">
+        <div class="swap-check"></div>
+        <span class="swap-in">↑ ${inP.name}</span>
+        <span class="swap-arrow">⇄</span>
+        <span class="swap-out">${off.name} ↓</span>
+      </div>`;
+    });
+    html += `</div>`;
+
+    // 2nd half
+    html += `<div class="half-section" id="q${qn}-h2">
+      <div class="half-header">
+        <div class="half-title">▶ 2nd Half — After Subs</div>
+        <button class="half-done-btn" onclick="markHalfDone('q${qn}-h2',this)">Mark Done</button>
+      </div>
+      <div class="pos-label">⚡ Forwards</div>`;
+    qd.half2.fwds.forEach(p => {
+      const isSub = qd.subIn.find(s => s.id === p.id);
+      html += playerRowHTML(p, isSub ? 'sub' : 'fwd', isSub ? 'Sub In' : 'Fwd');
+    });
+    html += `<div class="pos-label">🛡 Defense</div>`;
+    qd.half2.defs.forEach(p => {
+      const isSub = qd.subIn.find(s => s.id === p.id);
+      html += playerRowHTML(p, isSub ? 'sub' : 'def', isSub ? 'Sub In' : 'Def');
+    });
+    html += `<div class="pos-label">🪑 Came Off</div>`;
+    qd.half2.off.forEach(p => html += playerRowHTML(p, 'out', 'Off'));
+    html += `</div>`;
+  }
+
+  // Progress
+  html += `<div class="progress-wrap">
+    <div class="progress-label"><span>Q${qn} Progress</span><span id="q${qn}-prog-text">0 checked</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="q${qn}-prog-fill"></div></div>
+  </div>
+  <div class="reset-wrap"><button class="reset-btn" onclick="resetPanel('panel-${idx}','q${qn}-prog-text','q${qn}-prog-fill')">Reset Q${qn}</button></div>`;
+
+  return html;
+}
+
+function playerRowHTML(p, cls, label) {
+  const pbCls = { fwd:'pb-fwd', def:'pb-def', sub:'pb-sub', out:'pb-out' }[cls] || 'pb-out';
+  return `<div class="player-row ${cls}">
+    <span class="player-name">${p.name}</span>
+    <span class="pos-badge ${pbCls}">${label}</span>
+  </div>`;
+}
+
+function buildSummaryHTML() {
+  const present = PLAYERS.filter(p => attendance[p.id]);
+  const absent  = PLAYERS.filter(p => !attendance[p.id]);
+
+  // Build segment map for each present player
+  // Segments: Q1a, Q1b, Q2a, Q2b, Q3a, Q3b, Q4a, Q4b
+  let segMap = {};
+  present.forEach(p => segMap[p.id] = Array(8).fill('?'));
+
+  gameData.quarters.forEach((qd, qi) => {
+    const a = qi * 2;     // 1st half index
+    const b = qi * 2 + 1; // 2nd half index
+    // Goalie
+    segMap[qd.goalie.id][a] = 'gk';
+    segMap[qd.goalie.id][b] = 'gk';
+    if (!qd.hasBench) {
+      // Everyone plays both halves
+      [...qd.half1.fwds, ...qd.half1.defs].forEach(p => {
+        segMap[p.id][a] = 'fwd'; // simplified
+        segMap[p.id][b] = 'fwd';
+      });
+    } else {
+      qd.half1.fwds.forEach(p => segMap[p.id][a] = 'fwd');
+      qd.half1.defs.forEach(p => segMap[p.id][a] = 'def');
+      qd.bench.forEach(p => segMap[p.id][a] = 'sit');
+      qd.half2.fwds.forEach(p => {
+        const isSub = qd.subIn.find(s => s.id === p.id);
+        segMap[p.id][b] = isSub ? 'sub' : 'fwd';
+      });
+      qd.half2.defs.forEach(p => {
+        const isSub = qd.subIn.find(s => s.id === p.id);
+        segMap[p.id][b] = isSub ? 'sub' : 'def';
+      });
+      qd.half2.off.forEach(p => segMap[p.id][b] = 'sit');
+    }
+  });
+
+  const segLabels = ['Q1a','Q1b','Q2a','Q2b','Q3a','Q3b','Q4a','Q4b'];
+  const segClass  = { fwd:'seg-fwd', def:'seg-def', gk:'seg-gk', sit:'seg-sit', sub:'seg-sub', '?':'seg-abs' };
+  const segText   = { fwd:'FW', def:'DF', gk:'GK', sit:'–', sub:'↑', '?':'?' };
+
+  let html = `<div class="summary-section"><div class="summary-title">Player Summary</div>`;
+
+  present.forEach(p => {
+    const segs = segMap[p.id];
+    const sitsOut = segs.filter(s => s === 'sit').length;
+    const badgeColor = sitsOut <= 2
+      ? 'background:rgba(126,200,69,.1);color:var(--lime);border:1px solid rgba(126,200,69,.3)'
+      : 'background:rgba(224,138,48,.1);color:var(--orange);border:1px solid rgba(224,138,48,.3)';
+    html += `<div class="psc">
+      <div class="psc-header">
+        <span class="psc-name">${p.name}</span>
+        <span class="psc-badge" style="${badgeColor}">${sitsOut} out${p.goalieOrder < 99 || !p.prevGoalie ? '' : ''}</span>
+      </div>
+      <div class="psc-segs">`;
+    segs.forEach((s, i) => {
+      html += `<div class="seg ${segClass[s]}">${segText[s]}<span>${segLabels[i]}</span></div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  if (absent.length > 0) {
+    html += `<div style="margin-top:14px"><div class="summary-title" style="font-size:1rem">Absent Today</div>`;
+    absent.forEach(p => {
+      html += `<div class="psc" style="opacity:.45">
+        <div class="psc-header">
+          <span class="psc-name">${p.name}</span>
+          <span class="psc-badge" style="background:rgba(224,64,64,.08);color:var(--red);border:1px solid rgba(224,64,64,.2)">Absent</span>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+// ══════════════════════════════════════════
+//  INTERACTION
+// ══════════════════════════════════════════
+function switchTab(idx) {
+  document.querySelectorAll('.qtab').forEach((t,i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.quarter-panel').forEach((p,i) => p.classList.toggle('active', i === idx));
+}
+
+function toggleSwap(row) {
+  row.classList.toggle('swap-done');
+  updateProgress(row.closest('.quarter-panel'));
+  if (row.classList.contains('swap-done')) {
+    const name = row.querySelector('.swap-in').textContent.replace('↑ ','');
+    showToast(`✓ ${name} subbed in`);
+  }
+}
+
+function markHalfDone(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const done = !el.classList.contains('completed');
+  el.classList.toggle('completed', done);
+  btn.classList.toggle('done', done);
+  btn.textContent = done ? '✓ Done' : 'Mark Done';
+  const panel = el.closest('.quarter-panel');
+  updateProgress(panel);
+  checkQuarterDone(panel);
+  if (done) showToast('Half complete!');
+}
+
+function updateProgress(panel) {
+  if (!panel) return;
+  const idx = [...document.querySelectorAll('.quarter-panel')].indexOf(panel);
+  if (idx >= 4) return;
+  const qn = idx + 1;
+  const all = panel.querySelectorAll('.sub-swap');
+  const done = panel.querySelectorAll('.sub-swap.swap-done');
+  const pct = all.length ? Math.round(done.length / all.length * 100) : 0;
+  const t = document.getElementById(`q${qn}-prog-text`);
+  const f = document.getElementById(`q${qn}-prog-fill`);
+  if (t) t.textContent = all.length ? `${done.length} / ${all.length} subs confirmed` : 'No subs this quarter';
+  if (f) f.style.width = pct + '%';
+}
+
+function checkQuarterDone(panel) {
+  const halves = panel.querySelectorAll('.half-section');
+  const allDone = [...halves].every(h => h.classList.contains('completed'));
+  const idx = [...document.querySelectorAll('.quarter-panel')].indexOf(panel);
+  if (idx >= 0 && idx < 4) {
+    document.querySelectorAll('.qtab')[idx].classList.toggle('completed', allDone);
+    if (allDone) showToast(`🎉 Q${idx+1} complete!`);
+  }
+}
+
+function resetPanel(panelId, textId, fillId) {
+  const panel = document.getElementById(panelId);
+  panel.querySelectorAll('.sub-swap').forEach(s => s.classList.remove('swap-done'));
+  panel.querySelectorAll('.half-section').forEach(h => h.classList.remove('completed'));
+  panel.querySelectorAll('.half-done-btn').forEach(b => { b.classList.remove('done'); b.textContent = 'Mark Done'; });
+  const t = document.getElementById(textId);
+  const f = document.getElementById(fillId);
+  if (t) t.textContent = '0 checked';
+  if (f) f.style.width = '0%';
+  const idx = [...document.querySelectorAll('.quarter-panel')].indexOf(panel);
+  if (idx >= 0 && idx < 4) document.querySelectorAll('.qtab')[idx].classList.remove('completed');
+  showToast('Quarter reset');
+}
+
+function editAttendance() {
+  document.getElementById('screen-game').classList.remove('active');
+  document.getElementById('screen-attendance').classList.add('active');
+  document.getElementById('header-sub').textContent = 'Mark attendance to begin';
+  gameData = null;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── INIT ──
+renderAttendance();
+</script>
+</body>
+</html>

@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚽ Game Day Rotation</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:  #1a7a3c;
+    --lime:   #7ec845;
+    --dark:   #0f1a12;
+    --card:   #162018;
+    --card2:  #1c2a1e;
+    --line:   #243328;
+    --text:   #e8f2e8;
+    --muted:  #7a9e7e;
+    --gold:   #f0c040;
+    --red:    #e04040;
+    --blue:   #4a9fe0;
+    --orange: #e08a30;
+    --purple: #a070e0;
+    --done:   #2a4a2e;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 60px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #0d1f10 0%, #1a4a22 60%, #0d1f10 100%);
+    border-bottom: 3px solid var(--lime);
+    padding: 24px 20px 20px;
+    text-align: center;
+    position: sticky; top: 0; z-index: 100;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(126,200,69,.05) 28px, rgba(126,200,69,.05) 30px),
+      repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(126,200,69,.05) 28px, rgba(126,200,69,.05) 30px);
+    pointer-events: none;
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.8rem, 6vw, 3rem);
+    letter-spacing: .06em;
+    color: var(--lime);
+    text-shadow: 0 0 20px rgba(126,200,69,.4);
+    position: relative;
+  }
+  .header-sub {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    margin-top: 6px; position: relative;
+  }
+  .header-sub span {
+    font-size: .72rem;
+    color: var(--muted);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  /* ── BRONAGH TOGGLE ── */
+  .bronagh-bar {
+    background: rgba(224,64,64,.08);
+    border-bottom: 1px solid rgba(224,64,64,.2);
+    padding: 10px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    flex-wrap: wrap;
+  }
+  .bronagh-label {
+    font-size: .82rem;
+    color: #e88;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .bronagh-label strong { color: var(--red); }
+  .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+  .toggle-text { font-size: .78rem; color: var(--muted); }
+  .toggle {
+    position: relative;
+    width: 48px; height: 26px;
+    cursor: pointer;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: #333;
+    border-radius: 999px;
+    transition: background .2s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 20px; height: 20px;
+    left: 3px; top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform .2s;
+  }
+  .toggle input:checked + .toggle-slider { background: var(--green); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(22px); }
+  #bronagh-status { font-size: .78rem; font-weight: 600; color: var(--red); min-width: 60px; }
+  #bronagh-status.present { color: var(--lime); }
+
+  /* ── QUARTER TABS ── */
+  .quarter-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--line);
+    background: var(--card);
+    position: sticky; top: 73px; z-index: 90;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .quarter-tabs::-webkit-scrollbar { display: none; }
+  .qtab {
+    flex: 1; min-width: 70px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all .15s;
+    user-select: none;
+  }
+  .qtab-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: var(--muted);
+    line-height: 1;
+    transition: color .15s;
+  }
+  .qtab-label {
+    font-size: .6rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .qtab.active { border-bottom-color: var(--lime); }
+  .qtab.active .qtab-num { color: var(--lime); }
+  .qtab.active .qtab-label { color: var(--lime); }
+  .qtab-done-dot {
+    width: 6px; height: 6px;
+    background: var(--lime);
+    border-radius: 50%;
+    margin: 3px auto 0;
+    display: none;
+  }
+  .qtab.completed .qtab-done-dot { display: block; }
+
+  /* ── QUARTER PANELS ── */
+  .quarter-panel { display: none; padding: 16px 16px 0; }
+  .quarter-panel.active { display: block; }
+
+  /* ── GOALIE CARD ── */
+  .goalie-card {
+    background: linear-gradient(135deg, rgba(240,192,64,.12), rgba(240,192,64,.05));
+    border: 1px solid rgba(240,192,64,.3);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .goalie-icon { font-size: 1.4rem; }
+  .goalie-info { flex: 1; }
+  .goalie-name { font-size: 1rem; font-weight: 600; color: var(--gold); }
+  .goalie-sub  { font-size: .7rem; color: rgba(240,192,64,.6); text-transform: uppercase; letter-spacing: .08em; }
+  .full-q-badge {
+    font-size: .65rem; font-weight: 700;
+    background: rgba(240,192,64,.15); color: var(--gold);
+    border: 1px solid rgba(240,192,64,.3);
+    padding: 3px 8px; border-radius: 999px;
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+
+  /* ── HALF SECTIONS ── */
+  .half-section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    transition: opacity .2s;
+  }
+  .half-section.completed { opacity: .55; }
+
+  .half-header {
+    background: rgba(126,200,69,.07);
+    border-bottom: 1px solid var(--line);
+    padding: 8px 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .half-title {
+    font-size: .7rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--lime);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .half-done-btn {
+    font-size: .65rem; font-weight: 700;
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent; color: var(--muted);
+    cursor: pointer; transition: all .15s;
+  }
+  .half-done-btn:hover { border-color: var(--lime); color: var(--lime); }
+  .half-done-btn.done { background: var(--done); border-color: var(--lime); color: var(--lime); }
+
+  /* ── POSITION GROUP ── */
+  .pos-group { padding: 0; }
+  .pos-label {
+    padding: 5px 14px 3px;
+    font-size: .61rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.02);
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    border-top: 1px solid rgba(255,255,255,.04);
+  }
+
+  /* ── PLAYER ROW ── */
+  .player-row {
+    display: flex; align-items: center;
+    padding: 8px 14px;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    cursor: pointer;
+    transition: background .12s;
+    user-select: none;
+    -webkit-user-select: none;
+    position: relative;
+  }
+  .player-row:last-child { border-bottom: none; }
+  .player-row:active { background: rgba(255,255,255,.05); }
+
+  .player-row.fwd  { color: var(--orange); }
+  .player-row.def  { color: var(--blue); }
+  .player-row.sub  { color: var(--purple); font-weight: 600; }
+  .player-row.out  { color: var(--red); opacity: .65; }
+  .player-row.dnp  { color: #555; font-style: italic; }
+
+  .player-row.checked { text-decoration: line-through; opacity: .45; }
+  .player-row.checked .check-circle { background: var(--lime); border-color: var(--lime); }
+  .player-row.checked .check-circle::after { opacity: 1; }
+
+  /* check circle */
+  .check-circle {
+    width: 22px; height: 22px; flex-shrink: 0;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    background: transparent;
+    position: relative;
+    transition: all .15s;
+  }
+  .check-circle::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .7rem; font-weight: 700;
+    color: var(--dark);
+    opacity: 0;
+    transition: opacity .15s;
+  }
+
+  .player-name { flex: 1; font-size: .86rem; }
+
+  .pos-badge {
+    font-size: .61rem; font-weight: 700;
+    letter-spacing: .07em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .pb-fwd { background: rgba(224,138,48,.15); color: var(--orange); border: 1px solid rgba(224,138,48,.3); }
+  .pb-def { background: rgba(74,159,224,.12);  color: var(--blue);   border: 1px solid rgba(74,159,224,.25); }
+  .pb-sub { background: rgba(160,112,224,.15); color: var(--purple); border: 1px solid rgba(160,112,224,.3); }
+  .pb-out { background: rgba(224,64,64,.1);    color: var(--red);    border: 1px solid rgba(224,64,64,.25); }
+  .pb-dnp { background: rgba(100,100,100,.1);  color: #555;          border: 1px solid rgba(100,100,100,.2); }
+  .pb-gk  { background: rgba(240,192,64,.15);  color: var(--gold);   border: 1px solid rgba(240,192,64,.3); }
+
+  /* ── SUB PANEL ── */
+  .sub-panel {
+    margin: 0 12px 12px;
+    border-radius: 10px;
+    background: rgba(160,112,224,.07);
+    border: 1px solid rgba(160,112,224,.2);
+    overflow: hidden;
+  }
+  .sub-panel-title {
+    padding: 7px 12px 5px;
+    font-size: .62rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--purple);
+    border-bottom: 1px solid rgba(160,112,224,.15);
+    background: rgba(160,112,224,.05);
+  }
+  .sub-swap {
+    display: flex; align-items: center;
+    padding: 7px 12px;
+    gap: 8px;
+    border-bottom: 1px solid rgba(160,112,224,.08);
+    font-size: .82rem;
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .sub-swap:last-child { border-bottom: none; }
+  .sub-swap:active { background: rgba(160,112,224,.1); }
+  .sub-swap.swap-done { opacity: .4; text-decoration: line-through; }
+  .swap-in  { color: var(--purple); font-weight: 600; flex: 1; }
+  .swap-arrow { color: var(--lime); font-size: .9rem; }
+  .swap-out { color: var(--muted); flex: 1; text-align: right; }
+  .swap-check {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(160,112,224,.4);
+    background: transparent;
+    position: relative;
+    transition: all .15s;
+  }
+  .sub-swap.swap-done .swap-check {
+    background: var(--purple);
+    border-color: var(--purple);
+  }
+  .sub-swap.swap-done .swap-check::after {
+    content: '✓';
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .65rem; font-weight: 700; color: white;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    padding: 0 16px 16px;
+  }
+  .progress-label {
+    display: flex; justify-content: space-between;
+    font-size: .7rem; color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--lime));
+    border-radius: 999px;
+    transition: width .3s ease;
+    width: 0%;
+  }
+
+  /* ── RESET BUTTON ── */
+  .reset-wrap {
+    text-align: center;
+    padding: 24px 16px 0;
+  }
+  .reset-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    transition: all .15s;
+  }
+  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--card2);
+    border: 1px solid var(--lime);
+    color: var(--lime);
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: .8rem; font-weight: 600;
+    letter-spacing: .06em;
+    z-index: 999;
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── SUMMARY TAB ── */
+  .summary-section { padding: 16px; }
+  .summary-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: .06em;
+    color: var(--lime);
+    margin-bottom: 12px;
+  }
+  .player-summary-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .psc-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .psc-name { font-size: .88rem; font-weight: 600; flex: 1; }
+  .psc-out-count {
+    font-size: .72rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 999px;
+  }
+  .psc-segs {
+    display: flex; gap: 3px; padding: 8px 14px; flex-wrap: wrap;
+  }
+  .seg {
+    width: 28px; height: 22px;
+    border-radius: 5px;
+    font-size: .62rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .seg-fwd { background: rgba(224,138,48,.15); color: var(--orange); }
+  .seg-def { background: rgba(74,159,224,.12); color: var(--blue); }
+  .seg-gk  { background: rgba(240,192,64,.15); color: var(--gold); }
+  .seg-sit { background: rgba(224,64,64,.1);   color: var(--red); }
+  .seg-sub { background: rgba(160,112,224,.15);color: var(--purple); }
+  .seg-dnp { background: rgba(100,100,100,.1); color: #555; }
+  .seg-label { font-size: .5rem; display: block; color: var(--muted); margin-top: 1px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚽ Game Day Rotation</h1>
+  <div class="header-sub">
+    <span>7v7 · 4 Quarters · Tap to check off</span>
+  </div>
+</header>
+
+<!-- BRONAGH TOGGLE -->
+<div class="bronagh-bar">
+  <div class="bronagh-label">
+    <span>🔴</span>
+    <span><strong>Bronagh L.</strong> — mark attendance:</span>
+  </div>
+  <div class="toggle-wrap">
+    <span class="toggle-text">Absent</span>
+    <label class="toggle">
+      <input type="checkbox" id="bronagh-toggle">
+      <span class="toggle-slider"></span>
+    </label>
+    <span id="bronagh-status">DNP</span>
+  </div>
+</div>
+
+<!-- QUARTER TABS -->
+<div class="quarter-tabs">
+  <div class="qtab active" onclick="switchTab(0)">
+    <div class="qtab-num">Q1</div>
+    <div class="qtab-label">Quarter 1</div>
+    <div class="qtab-done-dot"></div>
+  </div>
+  <div class="qtab" onclick="switchTab(1)">
+    <div class="qtab-num">Q2</div>
+    <div class="qtab-label">Quarter 2</div>
+    <div class="qtab-done-dot"></div>
+  </div>
+  <div class="qtab" onclick="switchTab(2)">
+    <div class="qtab-num">Q3</div>
+    <div class="qtab-label">Quarter 3</div>
+    <div class="qtab-done-dot"></div>
+  </div>
+  <div class="qtab" onclick="switchTab(3)">
+    <div class="qtab-num">Q4</div>
+    <div class="qtab-label">Quarter 4</div>
+    <div class="qtab-done-dot"></div>
+  </div>
+  <div class="qtab" onclick="switchTab(4)">
+    <div class="qtab-num" style="font-size:1rem;padding-top:4px">📋</div>
+    <div class="qtab-label">Summary</div>
+    <div class="qtab-done-dot"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ Q1 PANEL ═══════════════ -->
+<div class="quarter-panel active" id="panel-0">
+
+  <div class="goalie-card">
+    <div class="goalie-icon">🧤</div>
+    <div class="goalie-info">
+      <div class="goalie-name">Lyla Kay</div>
+      <div class="goalie-sub">Goalkeeper · 1st time ever ⭐</div>
+    </div>
+    <span class="full-q-badge">Full Q</span>
+  </div>
+
+  <!-- 1st Half -->
+  <div class="half-section" id="q1-h1">
+    <div class="half-header">
+      <div class="half-title">▶ 1st Half — Starting 6</div>
+      <button class="half-done-btn" onclick="markHalfDone('q1-h1', this)">Mark Done</button>
+    </div>
+    <div class="pos-group">
+      <div class="pos-label">⚡ Forwards</div>
+      <div class="player-row fwd" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Kalliopi D.</span>
+        <span class="pos-badge pb-fwd">Fwd</span>
+      </div>
+      <div class="player-row fwd" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Riley M.</span>
+        <span class="pos-badge pb-fwd">Fwd</span>
+      </div>
+      <div class="player-row fwd" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Penny J.</span>
+        <span class="pos-badge pb-fwd">Fwd</span>
+      </div>
+      <div class="pos-label">🛡 Defense</div>
+      <div class="player-row def" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Olivia F.</span>
+        <span class="pos-badge pb-def">Def</span>
+      </div>
+      <div class="player-row def" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Mackayla D.</span>
+        <span class="pos-badge pb-def">Def</span>
+      </div>
+      <div class="player-row def" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Lyla P.</span>
+        <span class="pos-badge pb-def">Def</span>
+      </div>
+      <div class="pos-label">🪑 Bench</div>
+      <div class="player-row out" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Skylar M.</span>
+        <span class="pos-badge pb-out">Out</span>
+      </div>
+      <div class="player-row out" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Giavana C.</span>
+        <span class="pos-badge pb-out">Out</span>
+      </div>
+      <div class="player-row dnp bronagh-row" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Bronagh L.</span>
+        <span class="pos-badge pb-dnp bronagh-badge">DNP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub panel -->
+  <div class="sub-panel">
+    <div class="sub-panel-title">⟳ Half-Time Subs — tap to confirm each swap</div>
+    <div class="sub-swap" onclick="toggleSwap(this)">
+      <div class="swap-check"></div>
+      <span class="swap-in">↑ Skylar M.</span>
+      <span class="swap-arrow">⇄</span>
+      <span class="swap-out">Kalliopi D. ↓</span>
+    </div>
+    <div class="sub-swap" onclick="toggleSwap(this)">
+      <div class="swap-check"></div>
+      <span class="swap-in">↑ Giavana C.</span>
+      <span class="swap-arrow">⇄</span>
+      <span class="swap-out">Riley M. ↓</span>
+    </div>
+    <div class="sub-swap bronagh-swap" onclick="toggleSwap(this)">
+      <div class="swap-check"></div>
+      <span class="swap-in bronagh-swap-in">↑ Bronagh L.*</span>
+      <span class="swap-arrow">⇄</span>
+      <span class="swap-out">Penny J. ↓</span>
+    </div>
+  </div>
+
+  <!-- 2nd Half -->
+  <div class="half-section" id="q1-h2">
+    <div class="half-header">
+      <div class="half-title">▶ 2nd Half — After Subs</div>
+      <button class="half-done-btn" onclick="markHalfDone('q1-h2', this)">Mark Done</button>
+    </div>
+    <div class="pos-group">
+      <div class="pos-label">⚡ Forwards</div>
+      <div class="player-row sub" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Skylar M.</span>
+        <span class="pos-badge pb-sub">Sub In</span>
+      </div>
+      <div class="player-row sub" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Giavana C.</span>
+        <span class="pos-badge pb-sub">Sub In</span>
+      </div>
+      <div class="player-row fwd" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Olivia F.</span>
+        <span class="pos-badge pb-fwd">Fwd</span>
+      </div>
+      <div class="pos-label">🛡 Defense</div>
+      <div class="player-row sub bronagh-row" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Bronagh L.</span>
+        <span class="pos-badge pb-sub bronagh-badge">Sub In*</span>
+      </div>
+      <div class="player-row def" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Mackayla D.</span>
+        <span class="pos-badge pb-def">Def</span>
+      </div>
+      <div class="player-row def" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Lyla P.</span>
+        <span class="pos-badge pb-def">Def</span>
+      </div>
+      <div class="pos-label">🪑 Came Off</div>
+      <div class="player-row out" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Kalliopi D.</span>
+        <span class="pos-badge pb-out">Off</span>
+      </div>
+      <div class="player-row out" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Riley M.</span>
+        <span class="pos-badge pb-out">Off</span>
+      </div>
+      <div class="player-row out" onclick="toggleCheck(this)">
+        <div class="check-circle"></div>
+        <span class="player-name">Penny J.</span>
+        <span class="pos-badge pb-out">Off</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Q1 Progress</span><span id="q1-progress-text">0 / 12 checked</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="q1-progress-fill"></div></div>
+  </div>
+  <div class="reset-wrap"><button class="reset-btn" onclick="resetPanel('panel-0', 'q1-progress-text', 'q1-progress-fill')">Reset Q1</button></div>
+</div>
+
+<!-- ═══════════════ Q2 PANEL ═══════════════ -->
+<div class="quarter-panel" id="panel-1">
+
+  <div class="goalie-card">
+    <div class="goalie-icon">🧤</div>
+    <div class="goalie-info">
+      <div class="goalie-name">Kalliopi D.</div>
+      <div class="goalie-sub">Goalkeeper · 1st time ever ⭐</div>
+    </div>
+    <span class="full-q-badge">Full Q</span>
+  </div>
+
+  <div class="half-section" id="q2-h1">
+    <div class="half-header">
+      <div class="half-title">▶ 1st Half — Starting 6</div>
+      <button class="half-done-btn" onclick="markHalfDone('q2-h1', this)">Mark Done</button>
+    </div>
+    <div class="pos-group">
+      <div class="pos-label">⚡ Forwards</div>
+      <div class="player-row fwd" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Skylar M.</span><span class="pos-badge pb-fwd">Fwd</span></div>
+      <div class="player-row fwd" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Mackayla D.</span><span class="pos-badge pb-fwd">Fwd</span></div>
+      <div class="player-row fwd" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Giavana C.</span><span class="pos-badge pb-fwd">Fwd</span></div>
+      <div class="pos-label">🛡 Defense</div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Riley M.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Penny J.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Olivia F.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="pos-label">🪑 Bench</div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla Kay</span><span class="pos-badge pb-out">Out</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla P.</span><span class="pos-badge pb-out">Out</span></div>
+      <div class="player-row dnp bronagh-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Bronagh L.</span><span class="pos-badge pb-dnp bronagh-badge">DNP</span></div>
+    </div>
+  </div>
+
+  <div class="sub-panel">
+    <div class="sub-panel-title">⟳ Half-Time Subs — tap to confirm each swap</div>
+    <div class="sub-swap" onclick="toggleSwap(this)"><div class="swap-check"></div><span class="swap-in">↑ Lyla Kay</span><span class="swap-arrow">⇄</span><span class="swap-out">Skylar M. ↓</span></div>
+    <div class="sub-swap" onclick="toggleSwap(this)"><div class="swap-check"></div><span class="swap-in">↑ Lyla P.</span><span class="swap-arrow">⇄</span><span class="swap-out">Olivia F. ↓</span></div>
+    <div class="sub-swap bronagh-swap" onclick="toggleSwap(this)"><div class="swap-check"></div><span class="swap-in bronagh-swap-in">↑ Bronagh L.*</span><span class="swap-arrow">⇄</span><span class="swap-out">Mackayla D. ↓</span></div>
+  </div>
+
+  <div class="half-section" id="q2-h2">
+    <div class="half-header">
+      <div class="half-title">▶ 2nd Half — After Subs</div>
+      <button class="half-done-btn" onclick="markHalfDone('q2-h2', this)">Mark Done</button>
+    </div>
+    <div class="pos-group">
+      <div class="pos-label">⚡ Forwards</div>
+      <div class="player-row sub" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla Kay</span><span class="pos-badge pb-sub">Sub In</span></div>
+      <div class="player-row fwd" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Giavana C.</span><span class="pos-badge pb-fwd">Fwd</span></div>
+      <div class="player-row sub bronagh-row" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Bronagh L.</span><span class="pos-badge pb-sub bronagh-badge">Sub In*</span></div>
+      <div class="pos-label">🛡 Defense</div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Riley M.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Penny J.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row sub" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla P.</span><span class="pos-badge pb-sub">Sub In</span></div>
+      <div class="pos-label">🪑 Came Off</div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Skylar M.</span><span class="pos-badge pb-out">Off</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Olivia F.</span><span class="pos-badge pb-out">Off</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Mackayla D.</span><span class="pos-badge pb-out">Off</span></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Q2 Progress</span><span id="q2-progress-text">0 / 12 checked</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="q2-progress-fill"></div></div>
+  </div>
+  <div class="reset-wrap"><button class="reset-btn" onclick="resetPanel('panel-1', 'q2-progress-text', 'q2-progress-fill')">Reset Q2</button></div>
+</div>
+
+<!-- ═══════════════ Q3 PANEL ═══════════════ -->
+<div class="quarter-panel" id="panel-2">
+
+  <div class="goalie-card">
+    <div class="goalie-icon">🧤</div>
+    <div class="goalie-info">
+      <div class="goalie-name">Riley M.</div>
+      <div class="goalie-sub">Goalkeeper · 1st time ever ⭐</div>
+    </div>
+    <span class="full-q-badge">Full Q</span>
+  </div>
+
+  <div class="half-section" id="q3-h1">
+    <div class="half-header">
+      <div class="half-title">▶ 1st Half — Starting 6</div>
+      <button class="half-done-btn" onclick="markHalfDone('q3-h1', this)">Mark Done</button>
+    </div>
+    <div class="pos-group">
+      <div class="pos-label">⚡ Forwards</div>
+      <div class="player-row fwd" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla Kay</span><span class="pos-badge pb-fwd">Fwd</span></div>
+      <div class="player-row fwd" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Penny J.</span><span class="pos-badge pb-fwd">Fwd</span></div>
+      <div class="player-row fwd" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla P.</span><span class="pos-badge pb-fwd">Fwd</span></div>
+      <div class="pos-label">🛡 Defense</div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Kalliopi D.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Skylar M.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Bronagh L.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="pos-label">🪑 Bench</div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Giavana C.</span><span class="pos-badge pb-out">Out</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Olivia F.</span><span class="pos-badge pb-out">Out</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Mackayla D.</span><span class="pos-badge pb-out">Out</span></div>
+    </div>
+  </div>
+
+  <div class="sub-panel">
+    <div class="sub-panel-title">⟳ Half-Time Subs — tap to confirm each swap</div>
+    <div class="sub-swap" onclick="toggleSwap(this)"><div class="swap-check"></div><span class="swap-in">↑ Giavana C.</span><span class="swap-arrow">⇄</span><span class="swap-out">Lyla Kay ↓</span></div>
+    <div class="sub-swap" onclick="toggleSwap(this)"><div class="swap-check"></div><span class="swap-in">↑ Olivia F.</span><span class="swap-arrow">⇄</span><span class="swap-out">Penny J. ↓</span></div>
+    <div class="sub-swap" onclick="toggleSwap(this)"><div class="swap-check"></div><span class="swap-in">↑ Mackayla D.</span><span class="swap-arrow">⇄</span><span class="swap-out">Lyla P. ↓</span></div>
+  </div>
+
+  <div class="half-section" id="q3-h2">
+    <div class="half-header">
+      <div class="half-title">▶ 2nd Half — After Subs</div>
+      <button class="half-done-btn" onclick="markHalfDone('q3-h2', this)">Mark Done</button>
+    </div>
+    <div class="pos-group">
+      <div class="pos-label">⚡ Forwards</div>
+      <div class="player-row sub" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Giavana C.</span><span class="pos-badge pb-sub">Sub In</span></div>
+      <div class="player-row sub" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Olivia F.</span><span class="pos-badge pb-sub">Sub In</span></div>
+      <div class="player-row sub" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Mackayla D.</span><span class="pos-badge pb-sub">Sub In</span></div>
+      <div class="pos-label">🛡 Defense</div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Kalliopi D.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Skylar M.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Bronagh L.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="pos-label">🪑 Came Off</div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla Kay</span><span class="pos-badge pb-out">Off</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Penny J.</span><span class="pos-badge pb-out">Off</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla P.</span><span class="pos-badge pb-out">Off</span></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Q3 Progress</span><span id="q3-progress-text">0 / 12 checked</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="q3-progress-fill"></div></div>
+  </div>
+  <div class="reset-wrap"><button class="reset-btn" onclick="resetPanel('panel-2', 'q3-progress-text', 'q3-progress-fill')">Reset Q3</button></div>
+</div>
+
+<!-- ═══════════════ Q4 PANEL ═══════════════ -->
+<div class="quarter-panel" id="panel-3">
+
+  <div class="goalie-card">
+    <div class="goalie-icon">🧤</div>
+    <div class="goalie-info">
+      <div class="goalie-name">Skylar M.</div>
+      <div class="goalie-sub">Goalkeeper · 1st time ever ⭐</div>
+    </div>
+    <span class="full-q-badge">Full Q</span>
+  </div>
+
+  <div class="half-section" id="q4-h1">
+    <div class="half-header">
+      <div class="half-title">▶ 1st Half — Starting 6</div>
+      <button class="half-done-btn" onclick="markHalfDone('q4-h1', this)">Mark Done</button>
+    </div>
+    <div class="pos-group">
+      <div class="pos-label">⚡ Forwards</div>
+      <div class="player-row fwd" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Penny J.</span><span class="pos-badge pb-fwd">Fwd</span></div>
+      <div class="player-row fwd" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla P.</span><span class="pos-badge pb-fwd">Fwd</span></div>
+      <div class="player-row fwd" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Riley M.</span><span class="pos-badge pb-fwd">Fwd</span></div>
+      <div class="pos-label">🛡 Defense</div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla Kay</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Olivia F.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Bronagh L.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="pos-label">🪑 Bench</div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Giavana C.</span><span class="pos-badge pb-out">Out</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Kalliopi D.</span><span class="pos-badge pb-out">Out</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Mackayla D.</span><span class="pos-badge pb-out">Out</span></div>
+    </div>
+  </div>
+
+  <div class="sub-panel">
+    <div class="sub-panel-title">⟳ Half-Time Subs — tap to confirm each swap</div>
+    <div class="sub-swap" onclick="toggleSwap(this)"><div class="swap-check"></div><span class="swap-in">↑ Giavana C.</span><span class="swap-arrow">⇄</span><span class="swap-out">Penny J. ↓</span></div>
+    <div class="sub-swap" onclick="toggleSwap(this)"><div class="swap-check"></div><span class="swap-in">↑ Kalliopi D.</span><span class="swap-arrow">⇄</span><span class="swap-out">Riley M. ↓</span></div>
+    <div class="sub-swap" onclick="toggleSwap(this)"><div class="swap-check"></div><span class="swap-in">↑ Mackayla D.</span><span class="swap-arrow">⇄</span><span class="swap-out">Bronagh L. ↓</span></div>
+  </div>
+
+  <div class="half-section" id="q4-h2">
+    <div class="half-header">
+      <div class="half-title">▶ 2nd Half — After Subs</div>
+      <button class="half-done-btn" onclick="markHalfDone('q4-h2', this)">Mark Done</button>
+    </div>
+    <div class="pos-group">
+      <div class="pos-label">⚡ Forwards</div>
+      <div class="player-row sub" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Giavana C.</span><span class="pos-badge pb-sub">Sub In</span></div>
+      <div class="player-row sub" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Kalliopi D.</span><span class="pos-badge pb-sub">Sub In</span></div>
+      <div class="player-row sub" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Mackayla D.</span><span class="pos-badge pb-sub">Sub In</span></div>
+      <div class="pos-label">🛡 Defense</div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla Kay</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Lyla P.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="player-row def" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Olivia F.</span><span class="pos-badge pb-def">Def</span></div>
+      <div class="pos-label">🪑 Came Off</div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Penny J.</span><span class="pos-badge pb-out">Off</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Riley M.</span><span class="pos-badge pb-out">Off</span></div>
+      <div class="player-row out" onclick="toggleCheck(this)"><div class="check-circle"></div><span class="player-name">Bronagh L.</span><span class="pos-badge pb-out">Off</span></div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Q4 Progress</span><span id="q4-progress-text">0 / 12 checked</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="q4-progress-fill"></div></div>
+  </div>
+  <div class="reset-wrap"><button class="reset-btn" onclick="resetPanel('panel-3', 'q4-progress-text', 'q4-progress-fill')">Reset Q4</button></div>
+</div>
+
+<!-- ═══════════════ SUMMARY PANEL ═══════════════ -->
+<div class="quarter-panel" id="panel-4">
+  <div class="summary-section">
+    <div class="summary-title">Player Summary</div>
+
+    <!-- Each player -->
+    <div class="player-summary-card">
+      <div class="psc-header">
+        <span class="psc-name">Lyla Kay</span>
+        <span class="psc-out-count" style="background:rgba(126,200,69,.1);color:var(--lime);border:1px solid rgba(126,200,69,.3)">2 segs out · GK Q1 ⭐</span>
+      </div>
+      <div class="psc-segs">
+        <div><span class="seg seg-gk">GK</span><span class="seg-label">Q1a</span></div>
+        <div><span class="seg seg-gk">GK</span><span class="seg-label">Q1b</span></div>
+        <div><span class="seg seg-sit">–</span><span class="seg-label">Q2a</span></div>
+        <div><span class="seg seg-sub">↑</span><span class="seg-label">Q2b</span></div>
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q3a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q3b</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q4a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q4b</span></div>
+      </div>
+    </div>
+
+    <div class="player-summary-card">
+      <div class="psc-header">
+        <span class="psc-name">Kalliopi D.</span>
+        <span class="psc-out-count" style="background:rgba(126,200,69,.1);color:var(--lime);border:1px solid rgba(126,200,69,.3)">2 segs out · GK Q2 ⭐</span>
+      </div>
+      <div class="psc-segs">
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q1a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q1b</span></div>
+        <div><span class="seg seg-gk">GK</span><span class="seg-label">Q2a</span></div>
+        <div><span class="seg seg-gk">GK</span><span class="seg-label">Q2b</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q3a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q3b</span></div>
+        <div><span class="seg seg-sit">–</span><span class="seg-label">Q4a</span></div>
+        <div><span class="seg seg-sub">↑</span><span class="seg-label">Q4b</span></div>
+      </div>
+    </div>
+
+    <div class="player-summary-card">
+      <div class="psc-header">
+        <span class="psc-name">Riley M.</span>
+        <span class="psc-out-count" style="background:rgba(126,200,69,.1);color:var(--lime);border:1px solid rgba(126,200,69,.3)">2 segs out · GK Q3 ⭐</span>
+      </div>
+      <div class="psc-segs">
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q1a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q1b</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q2a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q2b</span></div>
+        <div><span class="seg seg-gk">GK</span><span class="seg-label">Q3a</span></div>
+        <div><span class="seg seg-gk">GK</span><span class="seg-label">Q3b</span></div>
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q4a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q4b</span></div>
+      </div>
+    </div>
+
+    <div class="player-summary-card">
+      <div class="psc-header">
+        <span class="psc-name">Skylar M.</span>
+        <span class="psc-out-count" style="background:rgba(126,200,69,.1);color:var(--lime);border:1px solid rgba(126,200,69,.3)">2 segs out · GK Q4 ⭐</span>
+      </div>
+      <div class="psc-segs">
+        <div><span class="seg seg-sit">–</span><span class="seg-label">Q1a</span></div>
+        <div><span class="seg seg-sub">↑</span><span class="seg-label">Q1b</span></div>
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q2a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q2b</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q3a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q3b</span></div>
+        <div><span class="seg seg-gk">GK</span><span class="seg-label">Q4a</span></div>
+        <div><span class="seg seg-gk">GK</span><span class="seg-label">Q4b</span></div>
+      </div>
+    </div>
+
+    <div class="player-summary-card">
+      <div class="psc-header">
+        <span class="psc-name">Lyla P.</span>
+        <span class="psc-out-count" style="background:rgba(126,200,69,.1);color:var(--lime);border:1px solid rgba(126,200,69,.3)">2 segs out</span>
+      </div>
+      <div class="psc-segs">
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q1a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q1b</span></div>
+        <div><span class="seg seg-sit">–</span><span class="seg-label">Q2a</span></div>
+        <div><span class="seg seg-sub">↑</span><span class="seg-label">Q2b</span></div>
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q3a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q3b</span></div>
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q4a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q4b</span></div>
+      </div>
+    </div>
+
+    <div class="player-summary-card">
+      <div class="psc-header">
+        <span class="psc-name">Olivia F.</span>
+        <span class="psc-out-count" style="background:rgba(126,200,69,.1);color:var(--lime);border:1px solid rgba(126,200,69,.3)">2 segs out</span>
+      </div>
+      <div class="psc-segs">
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q1a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q1b</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q2a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q2b</span></div>
+        <div><span class="seg seg-sit">–</span><span class="seg-label">Q3a</span></div>
+        <div><span class="seg seg-sub">↑</span><span class="seg-label">Q3b</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q4a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q4b</span></div>
+      </div>
+    </div>
+
+    <div class="player-summary-card">
+      <div class="psc-header">
+        <span class="psc-name">Penny J.</span>
+        <span class="psc-out-count" style="background:rgba(224,138,48,.1);color:var(--orange);border:1px solid rgba(224,138,48,.3)">3 segs out</span>
+      </div>
+      <div class="psc-segs">
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q1a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q1b</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q2a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q2b</span></div>
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q3a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q3b</span></div>
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q4a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q4b</span></div>
+      </div>
+    </div>
+
+    <div class="player-summary-card">
+      <div class="psc-header">
+        <span class="psc-name">Mackayla D.</span>
+        <span class="psc-out-count" style="background:rgba(126,200,69,.1);color:var(--lime);border:1px solid rgba(126,200,69,.3)">2 segs out</span>
+      </div>
+      <div class="psc-segs">
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q1a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q1b</span></div>
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q2a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q2b</span></div>
+        <div><span class="seg seg-sit">–</span><span class="seg-label">Q3a</span></div>
+        <div><span class="seg seg-sub">↑</span><span class="seg-label">Q3b</span></div>
+        <div><span class="seg seg-sit">–</span><span class="seg-label">Q4a</span></div>
+        <div><span class="seg seg-sub">↑</span><span class="seg-label">Q4b</span></div>
+      </div>
+    </div>
+
+    <div class="player-summary-card">
+      <div class="psc-header">
+        <span class="psc-name">Giavana C.</span>
+        <span class="psc-out-count" style="background:rgba(224,138,48,.1);color:var(--orange);border:1px solid rgba(224,138,48,.3)">3 segs out</span>
+      </div>
+      <div class="psc-segs">
+        <div><span class="seg seg-sit">–</span><span class="seg-label">Q1a</span></div>
+        <div><span class="seg seg-sub">↑</span><span class="seg-label">Q1b</span></div>
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q2a</span></div>
+        <div><span class="seg seg-fwd">FW</span><span class="seg-label">Q2b</span></div>
+        <div><span class="seg seg-sit">–</span><span class="seg-label">Q3a</span></div>
+        <div><span class="seg seg-sub">↑</span><span class="seg-label">Q3b</span></div>
+        <div><span class="seg seg-sit">–</span><span class="seg-label">Q4a</span></div>
+        <div><span class="seg seg-sub">↑</span><span class="seg-label">Q4b</span></div>
+      </div>
+    </div>
+
+    <div class="player-summary-card">
+      <div class="psc-header">
+        <span class="psc-name">Bronagh L.</span>
+        <span class="psc-out-count" style="background:rgba(224,64,64,.08);color:var(--red);border:1px solid rgba(224,64,64,.2)">DNP Q1–Q2 + 1 off</span>
+      </div>
+      <div class="psc-segs">
+        <div><span class="seg seg-dnp">DNP</span><span class="seg-label">Q1a</span></div>
+        <div><span class="seg seg-dnp">DNP</span><span class="seg-label">Q1b</span></div>
+        <div><span class="seg seg-dnp">DNP</span><span class="seg-label">Q2a</span></div>
+        <div><span class="seg seg-sub">↑*</span><span class="seg-label">Q2b</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q3a</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q3b</span></div>
+        <div><span class="seg seg-def">DF</span><span class="seg-label">Q4a</span></div>
+        <div><span class="seg seg-sit">–↓</span><span class="seg-label">Q4b</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── STATE ──
+  let bronautPresent = false;
+
+  // ── TAB SWITCHING ──
+  function switchTab(idx) {
+    document.querySelectorAll('.qtab').forEach((t, i) => t.classList.toggle('active', i === idx));
+    document.querySelectorAll('.quarter-panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+  }
+
+  // ── BRONAGH TOGGLE ──
+  document.getElementById('bronagh-toggle').addEventListener('change', function() {
+    bronautPresent = this.checked;
+    const status = document.getElementById('bronagh-status');
+    status.textContent = bronautPresent ? 'Present ✓' : 'DNP';
+    status.className = bronautPresent ? 'present' : '';
+
+    // Update all Bronagh rows
+    document.querySelectorAll('.bronagh-row').forEach(row => {
+      const badge = row.querySelector('.bronagh-badge');
+      if (bronautPresent) {
+        row.classList.remove('dnp');
+        row.classList.add('sub');
+        if (badge) { badge.textContent = 'Sub In'; badge.className = 'pos-badge pb-sub bronagh-badge'; }
+      } else {
+        row.classList.remove('sub');
+        row.classList.add('dnp');
+        if (badge) { badge.textContent = 'DNP'; badge.className = 'pos-badge pb-dnp bronagh-badge'; }
+      }
+    });
+
+    // Update swap labels
+    document.querySelectorAll('.bronagh-swap-in').forEach(el => {
+      el.textContent = bronautPresent ? '↑ Bronagh L.' : '↑ Bronagh (if arrives)';
+    });
+    document.querySelectorAll('.bronagh-swap').forEach(sw => {
+      sw.style.opacity = bronautPresent ? '1' : '0.45';
+    });
+
+    showToast(bronautPresent ? '✓ Bronagh marked present — subs updated!' : 'Bronagh marked DNP');
+  });
+
+  // ── PLAYER CHECK TOGGLE ──
+  function toggleCheck(row) {
+    row.classList.toggle('checked');
+    updateProgress(row.closest('.quarter-panel'));
+  }
+
+  // ── SWAP TOGGLE ──
+  function toggleSwap(row) {
+    row.classList.toggle('swap-done');
+    const panel = row.closest('.quarter-panel');
+    updateProgress(panel);
+    if (row.classList.contains('swap-done')) {
+      const inName = row.querySelector('.swap-in').textContent.replace('↑ ', '');
+      showToast(`✓ ${inName} subbed in`);
+    }
+  }
+
+  // ── MARK HALF DONE ──
+  function markHalfDone(halfId, btn) {
+    const half = document.getElementById(halfId);
+    const isDone = !half.classList.contains('completed');
+    half.classList.toggle('completed', isDone);
+    btn.classList.toggle('done', isDone);
+    btn.textContent = isDone ? '✓ Done' : 'Mark Done';
+    const panel = half.closest('.quarter-panel');
+    updateProgress(panel);
+    if (isDone) showToast('Half marked complete!');
+    checkQuarterComplete(panel);
+  }
+
+  // ── PROGRESS UPDATE ──
+  function updateProgress(panel) {
+    if (!panel) return;
+    const idx = [...document.querySelectorAll('.quarter-panel')].indexOf(panel);
+    if (idx === 4) return; // summary tab
+    const ids = ['q1','q2','q3','q4'][idx];
+    const allCheckable = panel.querySelectorAll('.player-row, .sub-swap');
+    const checked = panel.querySelectorAll('.player-row.checked, .sub-swap.swap-done');
+    const total = allCheckable.length;
+    const done = checked.length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    const textEl = document.getElementById(`${ids}-progress-text`);
+    const fillEl = document.getElementById(`${ids}-progress-fill`);
+    if (textEl) textEl.textContent = `${done} / ${total} checked`;
+    if (fillEl) fillEl.style.width = pct + '%';
+  }
+
+  // ── QUARTER COMPLETE CHECK ──
+  function checkQuarterComplete(panel) {
+    if (!panel) return;
+    const halves = panel.querySelectorAll('.half-section');
+    const allDone = [...halves].every(h => h.classList.contains('completed'));
+    const idx = [...document.querySelectorAll('.quarter-panel')].indexOf(panel);
+    if (idx >= 0 && idx < 4) {
+      document.querySelectorAll('.qtab')[idx].classList.toggle('completed', allDone);
+      if (allDone) showToast(`🎉 Q${idx+1} complete!`);
+    }
+  }
+
+  // ── RESET ──
+  function resetPanel(panelId, textId, fillId) {
+    const panel = document.getElementById(panelId);
+    panel.querySelectorAll('.player-row').forEach(r => r.classList.remove('checked'));
+    panel.querySelectorAll('.sub-swap').forEach(s => s.classList.remove('swap-done'));
+    panel.querySelectorAll('.half-section').forEach(h => h.classList.remove('completed'));
+    panel.querySelectorAll('.half-done-btn').forEach(b => { b.classList.remove('done'); b.textContent = 'Mark Done'; });
+    const t = document.getElementById(textId);
+    const f = document.getElementById(fillId);
+    if (t) t.textContent = '0 / 12 checked';
+    if (f) f.style.width = '0%';
+    const idx = [...document.querySelectorAll('.quarter-panel')].indexOf(panel);
+    if (idx >= 0 && idx < 4) document.querySelectorAll('.qtab')[idx].classList.remove('completed');
+    showToast('Quarter reset');
+  }
+
+  // ── TOAST ──
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+</script>
+</body>
+</html>

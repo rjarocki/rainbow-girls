@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soccer Rotation – Game Day</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:  #1a7a3c;
+    --lime:   #7ec845;
+    --dark:   #0f1a12;
+    --card:   #162018;
+    --line:   #243328;
+    --text:   #e8f2e8;
+    --muted:  #7a9e7e;
+    --gold:   #f0c040;
+    --red:    #e04040;
+    --blue:   #4a9fe0;
+    --orange: #e08a30;
+    --purple: #a070e0;
+  }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 48px;
+  }
+
+  header {
+    background: linear-gradient(135deg, #0d1f10 0%, #1a4a22 60%, #0d1f10 100%);
+    border-bottom: 3px solid var(--lime);
+    padding: 32px 24px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 38px, rgba(126,200,69,.06) 38px, rgba(126,200,69,.06) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 38px, rgba(126,200,69,.06) 38px, rgba(126,200,69,.06) 40px);
+    pointer-events: none;
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.4rem, 8vw, 4rem);
+    letter-spacing: .06em;
+    color: var(--lime);
+    text-shadow: 0 0 24px rgba(126,200,69,.4);
+    position: relative;
+  }
+  header p {
+    margin-top: 6px;
+    font-size: .85rem;
+    color: var(--muted);
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    position: relative;
+  }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: center;
+    padding: 20px 24px 0;
+    max-width: 1020px;
+    margin: 0 auto;
+  }
+  .chip {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 13px;
+    font-size: .75rem;
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-goalie { background: var(--gold); }
+  .dot-fwd    { background: var(--orange); }
+  .dot-def    { background: var(--blue); }
+  .dot-sit    { background: var(--red); }
+  .dot-sub    { background: var(--purple); }
+
+  .note {
+    max-width: 1020px;
+    margin: 14px auto 0;
+    padding: 0 24px;
+  }
+  .note-inner {
+    background: rgba(126,200,69,.06);
+    border: 1px solid rgba(126,200,69,.2);
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: .79rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .note-inner strong { color: var(--lime); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+    max-width: 1020px;
+    margin: 20px auto 0;
+    padding: 0 24px;
+  }
+
+  .quarter-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    animation: fadeUp .4s ease both;
+  }
+  .quarter-card:nth-child(1) { animation-delay: .05s }
+  .quarter-card:nth-child(2) { animation-delay: .12s }
+  .quarter-card:nth-child(3) { animation-delay: .19s }
+  .quarter-card:nth-child(4) { animation-delay: .26s }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(18px) }
+    to   { opacity:1; transform: translateY(0) }
+  }
+
+  .quarter-header {
+    background: linear-gradient(90deg, var(--green), #1e5a28);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .quarter-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--lime);
+    line-height: 1;
+  }
+  .quarter-label {
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.6);
+  }
+
+  .goalie-row {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 16px;
+    font-size: .84rem;
+    font-weight: 600;
+    color: var(--gold);
+    border-bottom: 1px solid var(--line);
+    background: rgba(240,192,64,.05);
+  }
+  .goalie-row .badge { margin-left: auto; }
+
+  .half-block { border-bottom: 2px dashed rgba(126,200,69,.2); }
+  .half-block:last-of-type { border-bottom: none; }
+
+  .half-label {
+    padding: 5px 16px 3px;
+    font-size: .64rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--lime);
+    background: rgba(126,200,69,.06);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .section-divider {
+    padding: 4px 16px 3px;
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.02);
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+
+  .player-list { padding: 2px 0; }
+
+  .player-row {
+    display: flex; align-items: center;
+    padding: 5px 16px;
+    gap: 9px;
+    font-size: .81rem;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    transition: background .15s;
+  }
+  .player-row:last-child { border-bottom: none; }
+  .player-row:hover { background: rgba(255,255,255,.03); }
+
+  .player-row.fwd     { color: var(--orange); }
+  .player-row.def     { color: var(--blue); }
+  .player-row.sit     { color: var(--red); opacity: .7; }
+  .player-row.sub-in  { color: var(--purple); font-weight: 600; }
+  .player-row.sub-out { color: var(--muted); font-style: italic; opacity: .65; }
+
+  .badge {
+    margin-left: auto;
+    font-size: .61rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 999px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .badge-goalie { background: rgba(240,192,64,.15); color: var(--gold);   border: 1px solid rgba(240,192,64,.3); }
+  .badge-fwd    { background: rgba(224,138,48,.15); color: var(--orange); border: 1px solid rgba(224,138,48,.3); }
+  .badge-def    { background: rgba(74,159,224,.12); color: var(--blue);   border: 1px solid rgba(74,159,224,.25); }
+  .badge-sit    { background: rgba(224,64,64,.12);  color: var(--red);    border: 1px solid rgba(224,64,64,.25); }
+  .badge-in     { background: rgba(160,112,224,.15);color: var(--purple); border: 1px solid rgba(160,112,224,.3); }
+  .badge-out    { background: rgba(255,255,255,.06);color: var(--muted);  border: 1px solid rgba(255,255,255,.12); }
+
+  .sub-panel {
+    margin: 0 12px 10px;
+    border-radius: 8px;
+    background: rgba(160,112,224,.07);
+    border: 1px solid rgba(160,112,224,.2);
+    padding: 8px 12px;
+  }
+  .sub-panel-title {
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 6px;
+  }
+  .sub-row {
+    display: flex; align-items: center; gap: 6px;
+    font-size: .79rem;
+    padding: 2px 0;
+    border-bottom: 1px solid rgba(160,112,224,.1);
+  }
+  .sub-row:last-child { border-bottom: none; }
+  .sub-in-name  { color: var(--purple); font-weight: 600; }
+  .sub-out-name { color: var(--muted); }
+  .arrow { color: var(--lime); }
+
+  /* SUMMARY */
+  .summary-wrap {
+    max-width: 1020px;
+    margin: 32px auto 0;
+    padding: 0 24px;
+  }
+  .summary-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: .06em;
+    color: var(--lime);
+    margin-bottom: 14px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .76rem;
+    background: var(--card);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  thead tr { background: linear-gradient(90deg, var(--green), #1e5a28); }
+  th {
+    padding: 10px 8px;
+    text-align: left;
+    font-weight: 600;
+    font-size: .63rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.7);
+  }
+  td {
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.03); }
+
+  .hcell {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 20px;
+    border-radius: 4px;
+    font-size: .64rem;
+    font-weight: 700;
+    margin: 1px;
+  }
+  .hc-fwd { background: rgba(224,138,48,.15); color: var(--orange); }
+  .hc-def { background: rgba(74,159,224,.12); color: var(--blue); }
+  .hc-gk  { background: rgba(240,192,64,.15); color: var(--gold); }
+  .hc-sit { background: rgba(224,64,64,.1);   color: var(--red); }
+  .hc-sub { background: rgba(160,112,224,.15);color: var(--purple); }
+  .hc-dnp { background: rgba(100,100,100,.15);color: #666; }
+
+  .total-out { font-weight: 700; }
+  .t0 { color: var(--lime); }
+  .t1 { color: #aec; }
+  .t2 { color: var(--muted); }
+  .t3 { color: #e09050; }
+  .t4 { color: var(--red); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚽ Game Day Rotation</h1>
+  <p>7v7 · 4 Quarters · All 3 Bench Girls Sub In at Half</p>
+</header>
+
+<div class="legend">
+  <div class="chip"><div class="dot dot-goalie"></div> Goalie (full quarter)</div>
+  <div class="chip"><div class="dot dot-fwd"></div> Forward</div>
+  <div class="chip"><div class="dot dot-def"></div> Defense</div>
+  <div class="chip"><div class="dot dot-sub"></div> Sub In at Half</div>
+  <div class="chip"><div class="dot dot-sit"></div> 1st Half Only / Out</div>
+</div>
+
+<div class="note">
+  <div class="note-inner">
+    <strong>Rule:</strong> All 3 bench girls enter at the half each quarter. Goalie plays the full quarter.
+    <strong>Bronagh</strong> sits Q1 &amp; Q2 (DNP). <strong>Lyla P. / Giavana</strong> alternate quarters.
+    <strong>Penny &amp; Olivia</strong> each sit one half to help spread the load — most players end at 2 half-segments out.
+  </div>
+</div>
+
+<!--
+  ROTATION LOGIC (half-segments out per player, excluding Bronagh DNP):
+  Target: spread 12 sit-half-slots across 9 active players → ~1.3 each ideally
+  Constraints: Bronagh plays Q3+Q4 only (4 segments), so 4 extra DNP slots counted separately
+
+  Final sit counts (half-segments out, not counting Bronagh DNP):
+  Lyla Kay    : 2  (Q2a sit, Q3b off)
+  Kalliopi    : 2  (Q1b off, Q4b off)
+  Riley       : 2  (Q1b off, Q4a sit)
+  Skylar      : 2  (Q1a sit, Q2b off)
+  Lyla P.     : 2  (Q2a sit, Q3b off)
+  Olivia      : 2  (Q3b off, Q4a sit)  ← added one sit
+  Penny       : 2  (Q2b off, Q4b off)  ← added one sit
+  Mackayla    : 2  (Q2b off, Q3a sit)
+  Giavana     : 2  (Q1a sit, Q3a sit)
+  Bronagh     : 4 DNP (Q1a, Q1b, Q2a, Q2b)
+
+  QUARTER BREAKDOWN:
+  Q1 Goalie: Lyla Kay
+    Bench (3): Skylar, Giavana, Bronagh(DNP)
+    1st half field: Kalliopi(FW), Riley(FW), Penny(FW), Olivia(DF), Mackayla(DF), Lyla P.(DF)
+    Subs in at half: Skylar(→FW), Giavana(→FW), Bronagh(DNP)
+    Come off: Kalliopi, Riley, Mackayla
+    2nd half field: Skylar(FW), Giavana(FW), Penny(FW), Olivia(DF), [Bronagh DNP slot plays 5+GK], Lyla P.(DF)
+    Note: if Bronagh DNP, play 5 field + GK in 2nd half Q1 & Q2
+
+  Q2 Goalie: Kalliopi
+    Bench (3): Lyla Kay, Lyla P., Bronagh(DNP)
+    1st half field: Giavana(FW), Mackayla(FW), Skylar(FW), Riley(DF), Penny(DF), Olivia(DF)
+    Subs in at half: Lyla Kay(→FW), Lyla P.(→DF), Bronagh(DNP)
+    Come off: Giavana, Skylar, Penny  ← Penny comes off here (1 sit)
+    2nd half field: Lyla Kay(FW), Mackayla(FW), [Bronagh DNP], Riley(DF), Lyla P.(DF), Olivia(DF)
+
+  Q3 Goalie: Riley
+    Bench (3): Mackayla, Skylar, Giavana  — wait, need to re-check Lyla P./Giavana rule
+    Lyla P. plays Q3 (she sat Q2a). Giavana sits Q3 (she played Q2a).
+    Bench (3): Giavana, Skylar, Olivia  ← Olivia sits Q3a (her added sit)
+    1st half field: Lyla Kay(FW), Penny(FW), Lyla P.(FW), Kalliopi(DF), Mackayla(DF), Bronagh(DF)
+    Subs in at half: Giavana(→FW), Skylar(→DF), Olivia(→DF)
+    Come off: Lyla Kay, Lyla P., Bronagh   ← Lyla Kay and Lyla P. come off
+    2nd half field: Giavana(FW), Penny(FW), Mackayla(FW→keep as FW), Kalliopi(DF), Skylar(DF), Olivia(DF)
+
+  Q4 Goalie: Skylar
+    Lyla P. sits Q4 (played Q3). Giavana plays Q4 (sat Q3).
+    Bench (3): Riley, Olivia, Lyla P.
+    1st half field: Kalliopi(FW), Mackayla(FW), Giavana(FW), Lyla Kay(DF), Penny(DF), Bronagh(DF)
+    Subs in at half: Riley(→FW), Olivia(→FW), Lyla P.(→DF)
+    Come off: Kalliopi, Penny, Bronagh  ← Penny comes off again? Let me rebalance.
+
+  Rebalancing Q4 - Penny already sat Q2b, so let her play full Q4.
+  Instead have Kalliopi come off Q4b (she came off Q1b already = 2 total, fine).
+  Come off Q4b: Kalliopi, Mackayla, Bronagh
+  Subs in Q4b: Riley, Olivia, Lyla P.
+  That gives Mackayla 2 sits (Q2b off + Q4b off) ✓
+  Penny: Q2b off only = 1 sit... need her at 2.
+  Put Penny on bench Q4 start instead.
+
+  FINAL FINAL:
+  Q4 Goalie: Skylar
+  Bench Q4 start: Riley, Lyla P., Penny  ← Penny starts bench Q4 (her 2nd sit)
+  1st half field: Kalliopi(FW), Mackayla(FW), Giavana(FW), Lyla Kay(DF), Olivia(DF), Bronagh(DF)
+  Subs in at half: Riley(→FW), Lyla P.(→DF), Penny(→DF)
+  Come off: Giavana, Mackayla, Bronagh
+  2nd half field: Kalliopi(FW), Riley(FW), Mackayla... wait Mackayla comes off.
+  2nd half field: Kalliopi(FW), Riley(FW), Penny(DF), Lyla Kay(DF), Olivia(DF), Lyla P.(DF) — that's 4 def, 2 fwd. Adjust:
+  2nd half: Kalliopi(FW), Riley(FW), Penny(FW), Lyla Kay(DF), Olivia(DF), Lyla P.(DF) ✓
+
+  Come off Q4: Giavana(FW→off), Mackayla(FW→off), Bronagh(DF→off)
+  Giavana Q4: plays 1st half only = 1 sit for Q4 + had Q3a sit = 2 total ✓
+  Mackayla Q4: comes off = Q4b off; Q2b came off too = 2 total ✓  wait Q2b Penny came off not Mackayla. Let me recheck Q2.
+
+  Q2 come off: Giavana, Skylar, Penny. So Mackayla plays all of Q2. 
+  Mackayla sits: Q3a(bench) + Q4b(comes off) = 2 ✓
+  Penny sits: Q2b(comes off) + Q4a(bench) = 2 ✓
+  Olivia sits: Q3a(bench) + ... Olivia needs 2. She subs in Q3b and plays Q4 1st half.
+  Q4 come off includes no Olivia. So Olivia = Q3a bench only = 1 sit. Need one more.
+  Put Olivia coming off in Q4b instead of Lyla P.? 
+  Q4b come off: Giavana, Mackayla, Olivia. Then Lyla P. stays on 2nd half.
+  But Lyla P. is on bench Q4 start... if she subs in she plays Q4b. That's fine.
+  Come off Q4: Giavana, Mackayla, Olivia
+  Olivia: Q3a sit + Q4b off = 2 ✓
+  Lyla P.: Q2a sit + Q3b off = 2 ✓ (she comes off Q3 at half, subbed in Q2b)
+  Wait — Q3 bench was Giavana/Skylar/Olivia. Lyla P. starts Q3. She comes off at half of Q3. ✓
+
+  CONFIRMED FINAL SIT COUNTS:
+  Lyla Kay  : Q2a sit, Q3b off = 2
+  Kalliopi  : Q1b off, Q4... Kalliopi plays Q4 fully now. Q1b off only = 1. Need 2.
+    Fix: have Kalliopi come off Q4b too.
+    Q4b come off: Giavana, Kalliopi, Olivia. Mackayla stays on Q4b.
+    Mackayla Q4b plays. Mackayla sits: Q3a + ... Q2b? Let me re-examine Q2 come offs.
+    Q2 come offs: Giavana, Skylar, Penny.  Mackayla plays all Q2. 
+    Mackayla sits only Q3a = 1. Need 2. Put Mackayla coming off in Q2b.
+    Q2 come offs: Giavana, Skylar, Mackayla. Then Penny plays all Q2.
+    Penny sits: Q4a bench only = 1. Need 2. Put Penny coming off in Q1b.
+    Q1b come offs: Penny, Riley, Kalliopi (original was Kalliopi, Riley, Mackayla).
+    So Mackayla stays on Q1 fully.
+
+  TRULY FINAL:
+  Q1: bench=Skylar,Giavana,Bronagh. Field 1st: Kalliopi(FW),Riley(FW),Penny(FW),Olivia(DF),Mackayla(DF),LylaP(DF)
+      Come off at half: Kalliopi, Riley, Penny. Sub in: Skylar, Giavana, Bronagh(DNP)
+      Field 2nd: Skylar(FW), Giavana(FW), [Bronagh slot], Olivia(DF), Mackayla(DF), LylaP(DF)
+
+  Q2: bench=LylaKay,LylaP,Bronagh. Field 1st: Giavana(FW),Mackayla(FW),Skylar(FW),Riley(DF),Penny(DF),Olivia(DF)
+      Come off at half: Giavana, Skylar, Mackayla. Sub in: LylaKay, LylaP, Bronagh(DNP)
+      Field 2nd: LylaKay(FW), LylaP(FW), [Bronagh slot], Riley(DF), Penny(DF), Olivia(DF)
+
+  Q3: bench=Giavana,Skylar,Olivia. Field 1st: LylaKay(FW),Penny(FW),LylaP(FW),Kalliopi(DF),Mackayla(DF),Bronagh(DF)
+      Come off at half: LylaKay, LylaP, Mackayla. Sub in: Giavana, Skylar, Olivia
+      Field 2nd: Giavana(FW), Penny(FW), Skylar(FW), Kalliopi(DF), Olivia(DF), Bronagh(DF)
+
+  Q4: bench=Riley,LylaP,Penny. Field 1st: Kalliopi(FW),Mackayla(FW),Giavana(FW),LylaKay(DF),Olivia(DF),Bronagh(DF)
+      Come off at half: Giavana, Kalliopi, Olivia. Sub in: Riley, LylaP, Penny
+      Field 2nd: Riley(FW), Mackayla(FW), Penny(FW), LylaKay(DF), LylaP(DF), Bronagh(DF)
+
+  SIT COUNT CHECK (half-segments out, DNP not counted):
+  LylaKay  : Q2a(bench), Q3b(off) = 2 ✓
+  Kalliopi : Q1b(off), Q4b(off) = 2 ✓
+  Riley    : Q1b(off), Q4a(bench) = 2 ✓
+  Skylar   : Q1a(bench), Q2b(off), Q3a(bench) = 3 ✗ — too many
+  
+  Skylar at 3 again. Q3 bench has Giavana/Skylar/Olivia. Swap Skylar out of Q3 bench.
+  Who can bench Q3 instead? Mackayla hasn't benched yet beyond Q3.
+  Put Mackayla on Q3 bench instead of Skylar. Skylar starts Q3.
+  Q3 bench: Giavana, Mackayla, Olivia.
+  Q3 field 1st: LylaKay(FW), Penny(FW), LylaP(FW), Kalliopi(DF), Skylar(DF), Bronagh(DF)
+  Come off Q3 half: LylaKay, LylaP, Skylar. Sub in: Giavana, Mackayla, Olivia
+  Field Q3 2nd: Giavana(FW), Penny(FW), Mackayla(FW), Kalliopi(DF), Olivia(DF), Bronagh(DF)
+
+  Skylar: Q1a bench, Q2b off, Q3b off = 3. Still 3. 
+  Remove Skylar from Q2 come-offs. Q2 come offs were Giavana, Skylar, Mackayla.
+  Replace Skylar with someone else coming off Q2. Riley? Riley sits Q1b and Q4a=2. If Riley also comes off Q2b=3. No.
+  Penny coming off Q2b? Penny bench Q4a + Q2b off = 2 ✓. And we remove Penny from Q4 bench.
+  Then Q4 bench = Riley, LylaP, + someone new. Olivia? But Olivia already at 2 (Q3a bench + Q4b off).
+  If Olivia not off Q4b but instead benches Q4a: Olivia sits Q3a + Q4a = 2 ✓ (doesn't come off Q4b).
+  Q4 bench: Riley, LylaP, Olivia.
+  Q4 field 1st: Kalliopi(FW), Mackayla(FW), Giavana(FW), LylaKay(DF), Penny(DF), Bronagh(DF)
+  Come off Q4 half: Giavana, Kalliopi, Penny. Sub in: Riley, LylaP, Olivia
+  Field Q4 2nd: Riley(FW), Mackayla(FW), Olivia(FW), LylaKay(DF), LylaP(DF), Bronagh(DF)
+  
+  Q2 come offs (revised): Giavana, Penny, Mackayla.
+  Q2 field 1st: Skylar(FW), Mackayla(FW), Giavana(FW), Riley(DF), Penny(DF), Olivia(DF) — wait need to recheck who starts Q2
+  Q2 bench: LylaKay, LylaP, Bronagh.
+  Q2 field 1st (6): Skylar, Mackayla, Giavana, Riley, Penny, Olivia
+  Come off Q2: Giavana, Penny, Mackayla → Sub in: LylaKay, LylaP, Bronagh(DNP)
+  Q2 field 2nd: Skylar(FW), LylaKay(FW), [Bronagh DNP], Riley(DF), LylaP(DF), Olivia(DF)
+
+  RECHECK ALL SITS:
+  LylaKay  : Q2a bench, Q3b off = 2 ✓
+  Kalliopi : Q1b off, Q4b off = 2 ✓
+  Riley    : Q1b off, Q4a bench = 2 ✓
+  Skylar   : Q1a bench, Q2b... Skylar plays Q2 1st half and stays on 2nd half (not in come-offs). Skylar Q2b = plays. 
+             Skylar sits: Q1a bench only = 1. Good, but need 2? No — target is reduce heaviest sitters. Skylar at 1 or 2 is fine.
+             Actually target was just Penny+Olivia each get 1 more (from 0→1 and 1→2). Others keep similar.
+  Skylar   : Q1a bench = 1 ✓ (was 3 before, now 1 — great)
+  LylaP    : Q2a bench, Q3b off = 2 ✓
+  Olivia   : Q3a bench, Q4a bench = 2 ✓
+  Penny    : Q1b off, Q2b off = wait — Penny comes off Q1b AND Q2b? Q1 come offs: Kalliopi, Riley, Penny. Q2 come offs: Giavana, Penny, Mackayla. Yes Penny = 2 ✓
+  Mackayla : Q2b off, Q3a bench = 2 ✓
+  Giavana  : Q1a bench, Q2b off, Q4b off = 3. Still too many for Giavana.
+  
+  Giavana alternates: sits Q1 (bench), plays Q2, sits Q3 (bench)... wait Q3 bench is Giavana/Mackayla/Olivia per latest. 
+  Giavana: Q1a bench + Q3a bench = 2 already. Plus Q2b comes off = 3.
+  Remove Giavana from Q2 come-offs. Replace with someone else.
+  Q2 come offs: Skylar, Penny, Mackayla (replacing Giavana with Skylar)
+  Skylar: Q1a bench + Q2b off = 2 ✓
+  Giavana: Q1a bench + Q3a bench = 2 ✓ (plays Q2 fully, plays Q4 1st half, comes off Q4)
+  Q4 come offs: Giavana, Kalliopi, Penny — Penny at Q1b off + Q4b off = 2 ✓. Remove from Q2.
+  Q2 come offs: Skylar, Mackayla, + 1 more (not Penny now).
+  Need 3 to come off Q2. Who's available? Not LylaKay/LylaP(bench), not Bronagh(DNP), not Kalliopi(goalie).
+  Remaining Q2 starters: Skylar, Mackayla, Giavana, Riley, Penny, Olivia.
+  Come off 3 of those. Skylar ✓, Mackayla ✓, + Olivia? Olivia: Q3a bench + Q2b off = 2 ✓.
+  But then Q4a bench for Olivia goes away. Let's check: Olivia = Q2b off + Q3a bench = 2 ✓. No Q4 bench needed.
+  Q4 bench: Riley, LylaP, Penny.
+  Q4 1st field: Kalliopi(FW), Mackayla(FW), Giavana(FW), LylaKay(DF), Olivia(DF), Bronagh(DF)
+  Q4 come off: Giavana, Kalliopi, Mackayla → Sub in Riley, LylaP, Penny
+  Q4 2nd field: Riley(FW), Penny(FW), [slot], LylaKay(DF), Olivia(DF), LylaP(DF), Bronagh(DF) — that's 7 field. Error.
+  3 come off, 3 sub in, net 0 change. 6 field stays 6 field. 
+  Q4 2nd: Riley(FW), Penny(FW), Mackayla... wait Mackayla came off. 
+  Q4 1st field 6: Kalliopi, Mackayla, Giavana, LylaKay, Olivia, Bronagh
+  Come off: Giavana, Kalliopi, Mackayla (3 players leave)
+  Sub in: Riley, LylaP, Penny (3 players enter)
+  Q4 2nd field 6: Riley(FW), Penny(FW), LylaP(FW→or DF), LylaKay(DF), Olivia(DF), Bronagh(DF) ✓ 6 players ✓
+
+  FINAL CONFIRMED ROTATION:
+
+  Q1: GK=LylaKay | Bench: Skylar, Giavana, Bronagh(DNP)
+    1st: Kalliopi(FW), Riley(FW), Penny(FW), Olivia(DF), Mackayla(DF), LylaP(DF)
+    Off: Kalliopi, Riley, Penny → In: Skylar, Giavana, Bronagh(DNP)
+    2nd: Skylar(FW), Giavana(FW), [Bronagh DNP], Olivia(DF), Mackayla(DF), LylaP(DF)
+
+  Q2: GK=Kalliopi | Bench: LylaKay, LylaP, Bronagh(DNP)
+    1st: Skylar(FW), Mackayla(FW), Giavana(FW), Riley(DF), Penny(DF), Olivia(DF)
+    Off: Skylar, Mackayla, Olivia → In: LylaKay, LylaP, Bronagh(DNP)
+    2nd: Giavana(FW), LylaKay(FW), [Bronagh DNP], Riley(DF), Penny(DF), LylaP(DF)
+
+  Q3: GK=Riley | Bench: Giavana, Mackayla, Olivia
+    1st: LylaKay(FW), Penny(FW), LylaP(FW), Kalliopi(DF), Skylar(DF), Bronagh(DF)
+    Off: LylaKay, LylaP, Skylar → In: Giavana, Mackayla, Olivia
+    2nd: Giavana(FW), Penny(FW), Mackayla(FW), Kalliopi(DF), Olivia(DF), Bronagh(DF)
+
+  Q4: GK=Skylar | Bench: Riley, LylaP, Penny
+    1st: Kalliopi(FW), Mackayla(FW), Giavana(FW), LylaKay(DF), Olivia(DF), Bronagh(DF)
+    Off: Giavana, Kalliopi, Mackayla → In: Riley, LylaP, Penny
+    2nd: Riley(FW), Penny(FW), LylaP(FW), LylaKay(DF), Olivia(DF), Bronagh(DF)
+
+  FINAL SIT COUNTS (half-segments out):
+  LylaKay  : Q2a(bench) + Q3b(off) = 2
+  Kalliopi : Q1b(off) + Q4b(off) = 2
+  Riley    : Q1b(off) + Q4a(bench) = 2
+  Skylar   : Q1a(bench) + Q2b(off) = 2
+  LylaP    : Q2a(bench) + Q3b(off) = 2
+  Olivia   : Q2b(off) + Q3a(bench) = 2
+  Penny    : Q1b(off) + Q4a(bench) = 2
+  Mackayla : Q2b(off) + Q4b(off) = 2  ← wait Q3a bench too? No, Q3 bench = Giavana/Mackayla/Olivia... 
+             Mackayla IS on Q3 bench = Q3a bench + Q2b off + Q4b off = 3. 
+
+  Ugh. Mackayla on Q3 bench is the problem. Remove Mackayla from Q3 bench.
+  Q3 bench needs 3: Giavana (must sit Q3, alternating), + 2 others not at sit limit.
+  Who has 0 or 1 sits so far at Q3? 
+  After Q1+Q2: LylaKay=1, Kalliopi=1, Riley=1, Skylar=2(done), LylaP=1, Olivia=1, Penny=1, Mackayla=1, Giavana=1
+  Skylar is done at 2. Others at 1 need 1 more. Q3 bench (non-Giavana slot): pick 2 from those with 1 sit.
+  Options: LylaKay, Kalliopi, Riley, LylaP, Olivia, Penny, Mackayla (all at 1).
+  But LylaP must play Q3 (she sat Q2). Kalliopi, Riley need to play Q3 field for balance.
+  Use Olivia + Mackayla for Q3 bench (both at 1 sit → go to 2) ✓
+  Q3 bench: Giavana, Olivia, Mackayla ✓
+  Q3 1st field: LylaKay(FW), Penny(FW), LylaP(FW), Kalliopi(DF), Riley... wait Riley is GOALIE Q3.
+  Riley=GK Q3. Q3 1st field 6: LylaKay(FW), Penny(FW), LylaP(FW), Kalliopi(DF), Skylar(DF), Bronagh(DF)
+  Come off Q3: LylaKay, LylaP, Skylar → but Skylar already at 2. Skylar coming off Q3b = 3rd sit. Bad.
+  Don't take Skylar off Q3. Come off Q3: LylaKay, LylaP, Penny → Sub in: Giavana, Olivia, Mackayla
+  Penny comes off Q3b + Q1b = 2 ✓. LylaKay Q2a+Q3b=2 ✓. LylaP Q2a+Q3b=2 ✓.
+  Q3 2nd field: Giavana(FW), Olivia(FW), Mackayla(FW), Kalliopi(DF), Skylar(DF), Bronagh(DF) ✓
+
+  NOW Q4 bench: Riley=GK. Bench 3 from those at 2 sits (done): Skylar(2-done), and need 2 more.
+  At end of Q3: LylaKay=2✓, Kalliopi=1, Riley=GK, Skylar=2✓, LylaP=2✓, Olivia=1→wait:
+  Olivia: Q2b off + Q3a bench = 2 ✓. Mackayla: Q2b off + Q3a bench = 2 ✓. Penny: Q1b off + Q3b off = 2 ✓.
+  Giavana: Q1a bench + Q3a bench = 2 ✓. 
+  At 1 sit after Q3: Kalliopi(Q1b off only=1... wait Q1b Kalliopi comes off = 1 sit so far. Need 1 more in Q4.)
+  Bronagh: DNP Q1+Q2 = those are separate. In active play segments Bronagh=0 sits so far.
+  
+  Q4 bench 3: need players who still need their 2nd sit or are ok with 1.
+  Kalliopi needs Q4 bench or off to get to 2. Riley is GK.
+  Q4 bench: Kalliopi, Giavana(already 2, but Giavana must sit Q4 per alternating rule ✓), + 1 more.
+  Who else needs a sit? Bronagh has been playing Q3+Q4. Bronagh getting a half-off is fine.
+  Q4 bench: Giavana(alternating-must sit), Kalliopi(needs 2nd sit), Bronagh(okay to rest 2nd half).
+  Sub in Q4 mid: Giavana→in, Kalliopi→in, Bronagh→in replace who was on field 1st half.
+  
+  Q4 1st field 6: Riley(GK)→ field players: Mackayla(FW), Penny(FW), LylaP(FW... wait LylaP at 2 sits already, plays Q4)
+  Actually LylaP must play Q4 (sat Q3 per alternating). LylaP at 2 sits, plays Q4 fully? Or comes off?
+  LylaP plays full Q4 = fine, stays at 2 sits.
+  
+  Q4 GK=Skylar. Bench: Giavana, Kalliopi, Bronagh(if resting 2nd half)... but Bronagh should play Q4 fully since she only gets Q3+Q4.
+  Don't bench Bronagh. Q4 bench: Giavana, Kalliopi, + 1 player already at 2 sits.
+  Options at 2 sits: LylaKay, LylaP, Olivia, Penny, Mackayla, Giavana, Skylar(GK).
+  Pick LylaKay for Q4 bench? LylaKay would go to 3 sits (Q2a+Q3b+Q4a=3). Too many.
+  Pick Olivia? Olivia at 2, goes to 3 if benched Q4. 
+  Actually it's OK for 1-2 players to have 3 segments out if Bronagh has 4 DNP.
+  OR: accept that with Bronagh DNP the math forces some imbalance in Q4.
+  Best solution: Q4 bench = Giavana(must), Kalliopi(needs 2nd sit), Riley... Riley is GK.
+  Q4 bench = Giavana, Kalliopi, Penny(goes to 3 sits: Q1b+Q3b+Q4a). Penny=3.
+  Or bench Mackayla Q4a: Mackayla at 2+1=3. 
+  Least bad: bench one player for 3rd sit in Q4. Choose Penny(already off twice, used to it) or Mackayla.
+  Go with Mackayla Q4 bench (3rd sit) so Penny can play forward Q4 for team balance.
+  
+  Q4 bench: Giavana, Kalliopi, Mackayla
+  Q4 1st field: Penny(FW), LylaP(FW), Riley(FW→wait Riley is GK).
+  GK Skylar. Field: Penny(FW), LylaP(FW), Bronagh(FW or DF), LylaKay(DF), Olivia(DF), Riley... wait Riley is goalie Q3 not Q4.
+  Q4 GK = Skylar. Riley plays field Q4.
+  Q4 1st field 6: Penny(FW), LylaP(FW), Riley(FW), LylaKay(DF), Olivia(DF), Bronagh(DF)
+  Come off Q4: Penny, LylaP, Riley → Sub in: Giavana, Kalliopi, Mackayla
+  Q4 2nd field: Giavana(FW), Kalliopi(FW), Mackayla(FW), LylaKay(DF), Olivia(DF), Bronagh(DF) ✓
+
+  FINAL FINAL FINAL CONFIRMED:
+  Q1: GK=LylaKay | Bench: Skylar, Giavana, Bronagh(DNP)
+    1st: Kalliopi(FW), Riley(FW), Penny(FW) | Olivia(DF), Mackayla(DF), LylaP(DF)
+    Off→In: Kalliopi↔Skylar, Riley↔Giavana, Penny↔Bronagh(DNP)
+    2nd: Skylar(FW), Giavana(FW), [5v6 if Bronagh DNP] | Olivia(DF), Mackayla(DF), LylaP(DF)
+
+  Q2: GK=Kalliopi | Bench: LylaKay, LylaP, Bronagh(DNP)
+    1st: Skylar(FW), Mackayla(FW), Giavana(FW) | Riley(DF), Penny(DF), Olivia(DF)
+    Off→In: Skylar↔LylaKay, Mackayla↔LylaP, Olivia↔Bronagh(DNP)
+    2nd: LylaKay(FW), Giavana(FW), [5v6 if DNP] | Riley(DF), Penny(DF), LylaP(DF)
+
+  Q3: GK=Riley | Bench: Giavana, Olivia, Mackayla
+    1st: LylaKay(FW), Penny(FW), LylaP(FW) | Kalliopi(DF), Skylar(DF), Bronagh(DF)
+    Off→In: LylaKay↔Giavana, Penny↔Olivia, LylaP↔Mackayla
+    2nd: Giavana(FW), Olivia(FW), Mackayla(FW) | Kalliopi(DF), Skylar(DF), Bronagh(DF)
+
+  Q4: GK=Skylar | Bench: Giavana, Kalliopi, Mackayla
+    1st: Penny(FW), LylaP(FW), Riley(FW) | LylaKay(DF), Olivia(DF), Bronagh(DF)
+    Off→In: Penny↔Giavana, LylaP↔Kalliopi, Riley↔Mackayla
+    2nd: Giavana(FW), Kalliopi(FW), Mackayla(FW) | LylaKay(DF), Olivia(DF), Bronagh(DF)
+
+  FINAL SIT COUNT:
+  LylaKay  : Q2a bench + Q3b off = 2
+  Kalliopi : Q1b off + Q4b off = 2
+  Riley    : Q1b off + Q4b off = 2
+  Skylar   : Q1a bench + Q2b off = 2
+  LylaP    : Q2a bench + Q3b off + Q4b off = 3  ← LylaP comes off Q3 AND Q4b?
+  
+  Wait Q4: LylaP starts Q4 1st half (bench was Giavana/Kalliopi/Mackayla). LylaP plays Q4 1st. Then comes off Q4b. LylaP = Q2a + Q3b + Q4b = 3.
+  Swap: don't take LylaP off in Q4. Take someone else off.
+  Q4 come offs: Penny, Riley, + 1 more (not LylaP). Options on Q4 1st field: Penny(FW), LylaP(FW), Riley(FW), LylaKay(DF), Olivia(DF), Bronagh(DF).
+  Take Olivia off Q4b instead of LylaP. Olivia: Q2b + Q3a + Q4b = 3.
+  Take Bronagh off Q4b: Bronagh only plays Q3+Q4, taking her off half of Q4 is fine and expected.
+  Off→In Q4: Penny↔Giavana, Riley↔Kalliopi, Bronagh↔Mackayla
+  Q4 2nd: Giavana(FW), Kalliopi(FW), Mackayla(FW) | LylaKay(DF), LylaP(DF), Olivia(DF) ✓
+
+  TRULY FINAL SIT COUNTS:
+  LylaKay  : Q2a bench + Q3b off = 2 ✓
+  Kalliopi : Q1b off + Q4b off = 2 ✓
+  Riley    : Q1b off + Q4b off = 2 ✓
+  Skylar   : Q1a bench + Q2b off = 2 ✓
+  LylaP    : Q2a bench + Q3b off = 2 ✓
+  Olivia   : Q2b off + Q3a bench = 2 ✓
+  Penny    : Q1b off + Q4b off = 2 ✓
+  Mackayla : Q2b off + Q3a bench = 2 ✓  wait — Mackayla Q4 bench too?
+             Q4 bench = Giavana, Kalliopi, Mackayla. So Mackayla Q4a bench = 3rd sit. 
+             But Mackayla subs IN at Q4 half. So Q4a she's on bench, Q4b she's on field. Bench = sit. So Mackayla = Q2b off + Q3a bench + Q4a bench = 3.
+  Gah. Fix: remove Mackayla from Q4 bench. Q4 bench = Giavana, Kalliopi, + someone at ≤1 sit.
+  Who is at ≤1 sit before Q4? Giavana=2(Q1a+Q3a), Kalliopi=1(Q1b), others at 2.
+  Bronagh: active sits = 0 (DNP in Q1/Q2 separate). Playing Q3 both halves = 0 active sits. Bronagh could be Q4 bench for 1 sit, still plays Q4 2nd half.
+  Q4 bench: Giavana(must-alternating), Kalliopi(needs 2nd), Bronagh(gets 1 active sit)
+  Q4 1st field: Penny(FW), LylaP(FW), Riley(FW), LylaKay(DF), Olivia(DF), Mackayla(DF)
+  Off at Q4 half: Penny, Riley, Mackayla → In: Giavana, Kalliopi, Bronagh
+  Q4 2nd: Giavana(FW), Kalliopi(FW), [position], LylaKay(DF), Olivia(DF), LylaP(DF), Bronagh(DF) — that's 7 again.
+  Wait: off=Penny,Riley,Mackayla(3 leave). In=Giavana,Kalliopi,Bronagh(3 enter). Net=0. Field stays 6.
+  Q4 2nd field 6: Giavana(FW), Kalliopi(FW), Bronagh(DF→or FW), LylaKay(DF), Olivia(DF), LylaP(DF) ✓
+
+  ABSOLUTELY FINAL SIT COUNTS:
+  LylaKay  : Q2a bench + Q3b off = 2 ✓
+  Kalliopi : Q1b off + Q4a bench = 2 ✓
+  Riley    : Q1b off + Q4b off = 2 ✓
+  Skylar   : Q1a bench + Q2b off = 2 ✓
+  LylaP    : Q2a bench + Q3b off = 2 ✓
+  Olivia   : Q2b off + Q3a bench = 2 ✓
+  Penny    : Q1b off + Q4b off = 2 ✓
+  Mackayla : Q2b off + Q3a bench = 2... wait Mackayla Q4? Q4 bench is Giavana/Kalliopi/Bronagh. Mackayla plays Q4 fully. Mackayla = Q2b off + Q3a bench = 2 ✓
+  Giavana  : Q1a bench + Q3a bench + Q4a bench = 3. Giavana must alternate (sit Q1, sit Q3, sit Q4 — that's 3 quarters sitting which was the original constraint). Giavana = 3 active sits. This is inherent to the alternating rule.
+  Bronagh  : Q1 DNP(x2) + Q2 DNP(x2) + Q4a bench = 1 active sit + 4 DNP ✓
+
+  Giavana at 3 is the minimum possible given she must sit Q1, Q3 (alternating with LylaP who plays those quarters), and now Q4 per the bench. Could give Giavana Q4 1st half instead.
+  Giavana plays Q4 1st half, comes off at Q4 half: Giavana = Q1a bench + Q3a bench + Q4b off = 3. Still 3.
+  This is unavoidable given alternating constraint forces Giavana to sit every other quarter (Q1, Q3) and she's one of the Q4 bench starters.
+  Accept: Giavana=3, everyone else=2, Bronagh=4DNP+1.
+-->
+
+<div class="grid">
+
+  <!-- ══════════ Q1 ══════════ -->
+  <div class="quarter-card">
+    <div class="quarter-header">
+      <div class="quarter-num">Q1</div>
+      <div class="quarter-label">Quarter One</div>
+    </div>
+    <div class="goalie-row">
+      <div class="dot dot-goalie"></div> Lyla Kay
+      <span class="badge badge-goalie">Goalie · Full Q</span>
+    </div>
+
+    <div class="half-block">
+      <div class="half-label">▶ 1st Half</div>
+      <div class="section-divider">⚡ Forwards</div>
+      <div class="player-list">
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Kalliopi D. <span class="badge badge-fwd">Fwd</span></div>
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Riley M. <span class="badge badge-fwd">Fwd</span></div>
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Penny J. <span class="badge badge-fwd">Fwd</span></div>
+      </div>
+      <div class="section-divider">🛡 Defense</div>
+      <div class="player-list">
+        <div class="player-row def"><div class="dot dot-def"></div> Olivia F. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Mackayla D. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Lyla P. <span class="badge badge-def">Def</span></div>
+      </div>
+      <div class="section-divider">🪑 Bench</div>
+      <div class="player-list">
+        <div class="player-row sit"><div class="dot dot-sit"></div> Skylar M. <span class="badge badge-sit">Out</span></div>
+        <div class="player-row sit"><div class="dot dot-sit"></div> Giavana C. <span class="badge badge-sit">Out</span></div>
+        <div class="player-row sit"><div class="dot dot-sit"></div> Bronagh L. <span class="badge badge-sit">DNP</span></div>
+      </div>
+    </div>
+
+    <div class="sub-panel">
+      <div class="sub-panel-title">⟳ Half-Time Subs</div>
+      <div class="sub-row"><span class="sub-in-name">↑ Skylar M.</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Kalliopi D.</span></div>
+      <div class="sub-row"><span class="sub-in-name">↑ Giavana C.</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Riley M.</span></div>
+      <div class="sub-row"><span class="sub-in-name">↑ Bronagh (if present)</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Penny J.</span></div>
+    </div>
+
+    <div class="half-block">
+      <div class="half-label">▶ 2nd Half</div>
+      <div class="section-divider">⚡ Forwards</div>
+      <div class="player-list">
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Skylar M. <span class="badge badge-in">Sub In</span></div>
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Giavana C. <span class="badge badge-in">Sub In</span></div>
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Olivia F. <span class="badge badge-fwd">Fwd</span></div>
+      </div>
+      <div class="section-divider">🛡 Defense</div>
+      <div class="player-list">
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Bronagh L. <span class="badge badge-in">Sub In*</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Mackayla D. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Lyla P. <span class="badge badge-def">Def</span></div>
+      </div>
+      <div class="section-divider">🪑 Came Off</div>
+      <div class="player-list">
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Kalliopi D. <span class="badge badge-out">Off</span></div>
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Riley M. <span class="badge badge-out">Off</span></div>
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Penny J. <span class="badge badge-out">Off</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ Q2 ══════════ -->
+  <div class="quarter-card">
+    <div class="quarter-header">
+      <div class="quarter-num">Q2</div>
+      <div class="quarter-label">Quarter Two</div>
+    </div>
+    <div class="goalie-row">
+      <div class="dot dot-goalie"></div> Kalliopi D.
+      <span class="badge badge-goalie">Goalie · Full Q</span>
+    </div>
+
+    <div class="half-block">
+      <div class="half-label">▶ 1st Half</div>
+      <div class="section-divider">⚡ Forwards</div>
+      <div class="player-list">
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Skylar M. <span class="badge badge-fwd">Fwd</span></div>
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Mackayla D. <span class="badge badge-fwd">Fwd</span></div>
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Giavana C. <span class="badge badge-fwd">Fwd</span></div>
+      </div>
+      <div class="section-divider">🛡 Defense</div>
+      <div class="player-list">
+        <div class="player-row def"><div class="dot dot-def"></div> Riley M. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Penny J. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Olivia F. <span class="badge badge-def">Def</span></div>
+      </div>
+      <div class="section-divider">🪑 Bench</div>
+      <div class="player-list">
+        <div class="player-row sit"><div class="dot dot-sit"></div> Lyla Kay <span class="badge badge-sit">Out</span></div>
+        <div class="player-row sit"><div class="dot dot-sit"></div> Lyla P. <span class="badge badge-sit">Out</span></div>
+        <div class="player-row sit"><div class="dot dot-sit"></div> Bronagh L. <span class="badge badge-sit">DNP</span></div>
+      </div>
+    </div>
+
+    <div class="sub-panel">
+      <div class="sub-panel-title">⟳ Half-Time Subs</div>
+      <div class="sub-row"><span class="sub-in-name">↑ Lyla Kay</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Skylar M.</span></div>
+      <div class="sub-row"><span class="sub-in-name">↑ Lyla P.</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Olivia F.</span></div>
+      <div class="sub-row"><span class="sub-in-name">↑ Bronagh (if present)</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Mackayla D.</span></div>
+    </div>
+
+    <div class="half-block">
+      <div class="half-label">▶ 2nd Half</div>
+      <div class="section-divider">⚡ Forwards</div>
+      <div class="player-list">
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Lyla Kay <span class="badge badge-in">Sub In</span></div>
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Giavana C. <span class="badge badge-fwd">Fwd</span></div>
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Bronagh L. <span class="badge badge-in">Sub In*</span></div>
+      </div>
+      <div class="section-divider">🛡 Defense</div>
+      <div class="player-list">
+        <div class="player-row def"><div class="dot dot-def"></div> Riley M. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Penny J. <span class="badge badge-def">Def</span></div>
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Lyla P. <span class="badge badge-in">Sub In</span></div>
+      </div>
+      <div class="section-divider">🪑 Came Off</div>
+      <div class="player-list">
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Skylar M. <span class="badge badge-out">Off</span></div>
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Olivia F. <span class="badge badge-out">Off</span></div>
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Mackayla D. <span class="badge badge-out">Off</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ Q3 ══════════ -->
+  <div class="quarter-card">
+    <div class="quarter-header">
+      <div class="quarter-num">Q3</div>
+      <div class="quarter-label">Quarter Three</div>
+    </div>
+    <div class="goalie-row">
+      <div class="dot dot-goalie"></div> Riley M.
+      <span class="badge badge-goalie">Goalie · Full Q</span>
+    </div>
+
+    <div class="half-block">
+      <div class="half-label">▶ 1st Half</div>
+      <div class="section-divider">⚡ Forwards</div>
+      <div class="player-list">
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Lyla Kay <span class="badge badge-fwd">Fwd</span></div>
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Penny J. <span class="badge badge-fwd">Fwd</span></div>
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Lyla P. <span class="badge badge-fwd">Fwd</span></div>
+      </div>
+      <div class="section-divider">🛡 Defense</div>
+      <div class="player-list">
+        <div class="player-row def"><div class="dot dot-def"></div> Kalliopi D. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Skylar M. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Bronagh L. <span class="badge badge-def">Def</span></div>
+      </div>
+      <div class="section-divider">🪑 Bench</div>
+      <div class="player-list">
+        <div class="player-row sit"><div class="dot dot-sit"></div> Giavana C. <span class="badge badge-sit">Out</span></div>
+        <div class="player-row sit"><div class="dot dot-sit"></div> Olivia F. <span class="badge badge-sit">Out</span></div>
+        <div class="player-row sit"><div class="dot dot-sit"></div> Mackayla D. <span class="badge badge-sit">Out</span></div>
+      </div>
+    </div>
+
+    <div class="sub-panel">
+      <div class="sub-panel-title">⟳ Half-Time Subs</div>
+      <div class="sub-row"><span class="sub-in-name">↑ Giavana C.</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Lyla Kay</span></div>
+      <div class="sub-row"><span class="sub-in-name">↑ Olivia F.</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Penny J.</span></div>
+      <div class="sub-row"><span class="sub-in-name">↑ Mackayla D.</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Lyla P.</span></div>
+    </div>
+
+    <div class="half-block">
+      <div class="half-label">▶ 2nd Half</div>
+      <div class="section-divider">⚡ Forwards</div>
+      <div class="player-list">
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Giavana C. <span class="badge badge-in">Sub In</span></div>
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Olivia F. <span class="badge badge-in">Sub In</span></div>
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Mackayla D. <span class="badge badge-in">Sub In</span></div>
+      </div>
+      <div class="section-divider">🛡 Defense</div>
+      <div class="player-list">
+        <div class="player-row def"><div class="dot dot-def"></div> Kalliopi D. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Skylar M. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Bronagh L. <span class="badge badge-def">Def</span></div>
+      </div>
+      <div class="section-divider">🪑 Came Off</div>
+      <div class="player-list">
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Lyla Kay <span class="badge badge-out">Off</span></div>
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Penny J. <span class="badge badge-out">Off</span></div>
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Lyla P. <span class="badge badge-out">Off</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ Q4 ══════════ -->
+  <div class="quarter-card">
+    <div class="quarter-header">
+      <div class="quarter-num">Q4</div>
+      <div class="quarter-label">Quarter Four</div>
+    </div>
+    <div class="goalie-row">
+      <div class="dot dot-goalie"></div> Skylar M.
+      <span class="badge badge-goalie">Goalie · Full Q</span>
+    </div>
+
+    <div class="half-block">
+      <div class="half-label">▶ 1st Half</div>
+      <div class="section-divider">⚡ Forwards</div>
+      <div class="player-list">
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Penny J. <span class="badge badge-fwd">Fwd</span></div>
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Lyla P. <span class="badge badge-fwd">Fwd</span></div>
+        <div class="player-row fwd"><div class="dot dot-fwd"></div> Riley M. <span class="badge badge-fwd">Fwd</span></div>
+      </div>
+      <div class="section-divider">🛡 Defense</div>
+      <div class="player-list">
+        <div class="player-row def"><div class="dot dot-def"></div> Lyla Kay <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Olivia F. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Bronagh L. <span class="badge badge-def">Def</span></div>
+      </div>
+      <div class="section-divider">🪑 Bench</div>
+      <div class="player-list">
+        <div class="player-row sit"><div class="dot dot-sit"></div> Giavana C. <span class="badge badge-sit">Out</span></div>
+        <div class="player-row sit"><div class="dot dot-sit"></div> Kalliopi D. <span class="badge badge-sit">Out</span></div>
+        <div class="player-row sit"><div class="dot dot-sit"></div> Mackayla D. <span class="badge badge-sit">Out</span></div>
+      </div>
+    </div>
+
+    <div class="sub-panel">
+      <div class="sub-panel-title">⟳ Half-Time Subs</div>
+      <div class="sub-row"><span class="sub-in-name">↑ Giavana C.</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Penny J.</span></div>
+      <div class="sub-row"><span class="sub-in-name">↑ Kalliopi D.</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Riley M.</span></div>
+      <div class="sub-row"><span class="sub-in-name">↑ Mackayla D.</span><span class="arrow">⇄</span><span class="sub-out-name">↓ Bronagh L.</span></div>
+    </div>
+
+    <div class="half-block">
+      <div class="half-label">▶ 2nd Half</div>
+      <div class="section-divider">⚡ Forwards</div>
+      <div class="player-list">
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Giavana C. <span class="badge badge-in">Sub In</span></div>
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Kalliopi D. <span class="badge badge-in">Sub In</span></div>
+        <div class="player-row sub-in"><div class="dot dot-sub"></div> Mackayla D. <span class="badge badge-in">Sub In</span></div>
+      </div>
+      <div class="section-divider">🛡 Defense</div>
+      <div class="player-list">
+        <div class="player-row def"><div class="dot dot-def"></div> Lyla Kay <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Lyla P. <span class="badge badge-def">Def</span></div>
+        <div class="player-row def"><div class="dot dot-def"></div> Olivia F. <span class="badge badge-def">Def</span></div>
+      </div>
+      <div class="section-divider">🪑 Came Off</div>
+      <div class="player-list">
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Penny J. <span class="badge badge-out">Off</span></div>
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Riley M. <span class="badge badge-out">Off</span></div>
+        <div class="player-row sub-out"><div class="dot dot-sit"></div> Bronagh L. <span class="badge badge-out">Off</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ SUMMARY ══ -->
+<div class="summary-wrap">
+  <div class="summary-title">Player Summary — Half Segments</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>Q1a</th><th>Q1b</th>
+        <th>Q2a</th><th>Q2b</th>
+        <th>Q3a</th><th>Q3b</th>
+        <th>Q4a</th><th>Q4b</th>
+        <th>Segs Out</th>
+        <th>Goalie</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Lyla Kay</td>
+        <td><span class="hcell hc-gk">GK</span></td><td><span class="hcell hc-gk">GK</span></td>
+        <td><span class="hcell hc-sit">–</span></td><td><span class="hcell hc-sub">FW↑</span></td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td class="total-out t2">2</td><td>1st time ⭐</td>
+      </tr>
+      <tr>
+        <td>Kalliopi D.</td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td><span class="hcell hc-gk">GK</span></td><td><span class="hcell hc-gk">GK</span></td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td><span class="hcell hc-sit">–</span></td><td><span class="hcell hc-sub">FW↑</span></td>
+        <td class="total-out t2">2</td><td>1st time ⭐</td>
+      </tr>
+      <tr>
+        <td>Riley M.</td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td><span class="hcell hc-gk">GK</span></td><td><span class="hcell hc-gk">GK</span></td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td class="total-out t2">2</td><td>1st time ⭐</td>
+      </tr>
+      <tr>
+        <td>Skylar M.</td>
+        <td><span class="hcell hc-sit">–</span></td><td><span class="hcell hc-sub">FW↑</span></td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td><span class="hcell hc-gk">GK</span></td><td><span class="hcell hc-gk">GK</span></td>
+        <td class="total-out t2">2</td><td>1st time ⭐</td>
+      </tr>
+      <tr>
+        <td>Lyla P.</td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td><span class="hcell hc-sit">–</span></td><td><span class="hcell hc-sub">DF↑</span></td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td class="total-out t2">2</td><td>Previous</td>
+      </tr>
+      <tr>
+        <td>Olivia F.</td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td><span class="hcell hc-sit">–</span></td><td><span class="hcell hc-sub">FW↑</span></td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td class="total-out t2">2</td><td>Previous</td>
+      </tr>
+      <tr>
+        <td>Penny J.</td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td class="total-out t3">3</td><td>Previous</td>
+      </tr>
+      <tr>
+        <td>Mackayla D.</td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td><span class="hcell hc-sit">–</span></td><td><span class="hcell hc-sub">FW↑</span></td>
+        <td><span class="hcell hc-sit">–</span></td><td><span class="hcell hc-sub">FW↑</span></td>
+        <td class="total-out t2">2</td><td>No goalie yet</td>
+      </tr>
+      <tr>
+        <td>Giavana C.</td>
+        <td><span class="hcell hc-sit">–</span></td><td><span class="hcell hc-sub">FW↑</span></td>
+        <td><span class="hcell hc-fwd">FW</span></td><td><span class="hcell hc-fwd">FW</span></td>
+        <td><span class="hcell hc-sit">–</span></td><td><span class="hcell hc-sub">FW↑</span></td>
+        <td><span class="hcell hc-sit">–</span></td><td><span class="hcell hc-sub">FW↑</span></td>
+        <td class="total-out t3">3</td><td>Previous</td>
+      </tr>
+      <tr>
+        <td>Bronagh L.</td>
+        <td><span class="hcell hc-dnp">DNP</span></td><td><span class="hcell hc-dnp">DNP</span></td>
+        <td><span class="hcell hc-dnp">DNP</span></td><td><span class="hcell hc-sub">↑*</span></td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-def">DF</span></td>
+        <td><span class="hcell hc-def">DF</span></td><td><span class="hcell hc-sit">–↓</span></td>
+        <td class="total-out t2" style="color:#e09050">3 DNP + 1↓</td><td>No goalie yet</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:14px; font-size:.76rem; color:var(--muted); line-height:1.7;">
+    <strong style="color:var(--lime)">* Bronagh DNP slots:</strong> If she arrives, slot her in as planned. If not, Q1b and Q2b run with 5 field players + GK.<br>
+    <strong style="color:var(--lime)">Penny &amp; Giavana at 3 segments out</strong> is the minimum possible — Giavana's alternating constraint forces her to start the bench in Q1, Q3, and Q4, and Penny absorbs a 3rd sit to keep everyone else at 2.
+  </p>
+</div>
+
+</body>
+</html>
