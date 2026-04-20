@@ -1119,7 +1119,7 @@ function performSwap(halfId, rowA, rowB) {
   // and halftime sub panel updates accordingly
   rebuildQuarterPanel(qn);
 
-  showToast(`⇄ ${nameA} ↔ ${nameB}`);
+  showToast(`⇄ ${nameA} ↔ ${nameB}` + backToBackWarning());
 }
 
 // Build a patched quarter data object that applies all quarterState overrides
@@ -1652,7 +1652,7 @@ function applyGoalieOverride(qn, newGoalie) {
     delete goalieOverrides[qn];
     document.getElementById('goalie-modal').style.display = 'none';
     rebuildQuarterPanel(qn);
-    showToast(`GK reset to ${qd.goalie.name}`);
+    showToast(`GK reset to ${qd.goalie.name}` + backToBackWarning());
     return;
   }
 
@@ -1669,7 +1669,57 @@ function applyGoalieOverride(qn, newGoalie) {
 
   document.getElementById('goalie-modal').style.display = 'none';
   rebuildQuarterPanel(qn);
-  showToast(`🧤 ${newGoalie.name} → GK Q${qn}`);
+  showToast(`🧤 ${newGoalie.name} → GK Q${qn}` + backToBackWarning());
+}
+
+// Applies a goalie override to an already-patched quarter and returns the new
+// patched object. Per-half swap so field count and sub structure stay intact.
+function applyGkOverrideToPatched(patched, gkOverride) {
+  patched = JSON.parse(JSON.stringify(patched));
+  patched.goalie = gkOverride.newGoalie;
+  const newGkId = gkOverride.newGoalie.id;
+  const displaced = gkOverride.displaced;
+  ['half1','half2'].forEach(halfKey => {
+    const half = patched[halfKey];
+    const buckets = ['fwds','defs','bench','off'];
+    let foundBucket = null;
+    for (const b of buckets) {
+      if (half[b] && half[b].find(p => p.id === newGkId)) { foundBucket = b; break; }
+    }
+    buckets.forEach(b => {
+      if (half[b]) half[b] = half[b].filter(p => p.id !== newGkId);
+    });
+    half[foundBucket || 'fwds'] = half[foundBucket || 'fwds'] || [];
+    half[foundBucket || 'fwds'].push(displaced);
+  });
+  patched.bench     = patched.half1.bench ? [...patched.half1.bench] : [];
+  patched.subIn     = [...patched.bench];
+  patched.comingOff = patched.half2.off   ? [...patched.half2.off]   : [];
+  return patched;
+}
+
+// Scans all quarters (with current overrides applied) and returns any players
+// who would be benched in h2 of one quarter AND h1 of the next.
+function scanBackToBackViolations() {
+  if (!gameData) return [];
+  const patchedQs = gameData.quarters.map(qd => {
+    let p = buildPatchedQd(qd);
+    const gk = goalieOverrides[qd.q];
+    if (gk) p = applyGkOverrideToPatched(p, gk);
+    return p;
+  });
+  const violations = [];
+  for (let i = 0; i < patchedQs.length - 1; i++) {
+    const benchedH2 = new Set((patchedQs[i].half2.off || []).map(p => p.id));
+    const benchedH1Next = new Set((patchedQs[i+1].half1.bench || []).map(p => p.id));
+    benchedH2.forEach(pid => {
+      if (benchedH1Next.has(pid)) {
+        const player = PLAYERS.find(p => p.id === pid);
+        violations.push({ player, fromQ: patchedQs[i].q, toQ: patchedQs[i+1].q });
+      }
+    });
+  }
+  return violations;
 }
 
 function rebuildQuarterPanel(qn) {
@@ -1682,35 +1732,7 @@ function rebuildQuarterPanel(qn) {
 
   // Apply goalie override on top
   const gkOverride = goalieOverrides[qn];
-  if (gkOverride) {
-    patched = JSON.parse(JSON.stringify(patched));
-    patched.goalie = gkOverride.newGoalie;
-    const newGkId = gkOverride.newGoalie.id;
-    const displaced = gkOverride.displaced;
-
-    // Per-half swap: wherever new goalie was in this half, put displaced there.
-    // This keeps the field count at 6 and preserves formation/subs structure.
-    ['half1','half2'].forEach(halfKey => {
-      const half = patched[halfKey];
-      const buckets = ['fwds','defs','bench','off'];
-      let foundBucket = null;
-      for (const b of buckets) {
-        if (half[b] && half[b].find(p => p.id === newGkId)) { foundBucket = b; break; }
-      }
-      buckets.forEach(b => {
-        if (half[b]) half[b] = half[b].filter(p => p.id !== newGkId);
-      });
-      // Fallback to 'fwds' only if new goalie wasn't found in this half (shouldn't happen)
-      half[foundBucket || 'fwds'] = half[foundBucket || 'fwds'] || [];
-      half[foundBucket || 'fwds'].push(displaced);
-    });
-
-    // Sync quarter-level bench/subIn/comingOff to the swapped half data so the
-    // halftime subs panel reflects the new names.
-    patched.bench     = patched.half1.bench ? [...patched.half1.bench] : [];
-    patched.subIn     = [...patched.bench];
-    patched.comingOff = patched.half2.off   ? [...patched.half2.off]   : [];
-  }
+  if (gkOverride) patched = applyGkOverrideToPatched(patched, gkOverride);
 
   // Formation sanity check — warns if field count ever deviates from expected
   const attCount = PLAYERS.filter(p => attendance[p.id]).length;
@@ -1752,6 +1774,18 @@ function rebuildQuarterPanel(qn) {
   });
 
   updateProgress(qn);
+}
+
+// Build a short human-readable warning string from scanBackToBackViolations().
+// Returns '' if clean. Callers append this to their success toast so the
+// warning survives and isn't clobbered by the override confirmation.
+function backToBackWarning() {
+  const vios = scanBackToBackViolations();
+  if (!vios.length) return '';
+  console.warn('Back-to-back bench:', vios);
+  return vios.length === 1
+    ? ` ⚠ ${vios[0].player.firstName} Q${vios[0].fromQ}→Q${vios[0].toQ} back-to-back bench`
+    : ` ⚠ Back-to-back: ${vios.map(v => `${v.player.firstName} Q${v.fromQ}→Q${v.toQ}`).join(', ')}`;
 }
 
 // ── INIT ──
